@@ -5,6 +5,8 @@ ruby Foobara::JsonrpcConnectorVersion::MINIMUM_RUBY_VERSION
 
 gemspec
 
+# gem "foobara", path: "../foobara"
+
 gem "foobara-dotenv-loader", "~> 0.0.1"
 
 gem "rake"
