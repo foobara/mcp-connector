@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     foobara-jsonrpc-connector (0.0.1)
-      foobara (~> 0.0.93)
+      foobara (~> 0.0.94)
 
 GEM
   remote: https://rubygems.org/
@@ -54,7 +54,7 @@ GEM
       foobara-type-generator
       foobara-typescript-react-command-form-generator
       foobara-typescript-remote-command-generator
-    foobara (0.0.93)
+    foobara (0.0.94)
       bigdecimal
       foobara-lru-cache (~> 0.0.2)
       foobara-util (~> 0.0.11)

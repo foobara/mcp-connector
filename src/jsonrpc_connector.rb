@@ -1,31 +1,39 @@
 module Foobara
   class JsonrpcConnector < CommandConnector
-    def initialize(*, **, &)
-      default_serializers = [Foobara::CommandConnectors::Serializers::JsonSerializer]
-
-      super(*, default_serializers:, **, &)
+    def initialize(*, capture_unknown_error: true, **, &)
+      super
     end
 
     def build_response(request)
-      super.body
+      # TODO: We should be able to just set a default serializer on the connector!!
+      # But we can't because if we fail to create a command then the serializer won't be called.
+      # This shows that the serializers more properly belong on the command connector and not the
+      # exposed/transformed command!
+      json_serializer.process_value!(super.body)
+    end
+
+    def json_serializer
+      @json_serializer ||= Foobara::CommandConnectors::Serializers::JsonSerializer.new
     end
 
     def set_response_body(response)
       request = response.request
-      outcome = request.outcome
-
       body = { jsonrpc: "2.0", id: request.request_id }
 
-      response.body = if outcome.success?
-                        body.merge(result: outcome.result)
+      response.body = if request.error
+                        body.merge(error: { message: request.error.message, code: response.status })
                       else
-                        error = {
-                          message: outcome.error_sentence,
-                          data: outcome.errors_hash,
-                          code: response.status
-                        }
+                        outcome = request.outcome
 
-                        body.merge(error:)
+                        if outcome.success?
+                          body.merge(result: outcome.result)
+                        else
+                          body.merge(error: {
+                                       message: outcome.errors_sentence,
+                                       data: outcome.errors_hash,
+                                       code: response.status
+                                     })
+                        end
                       end
     end
 
@@ -33,7 +41,16 @@ module Foobara
       request = response.request
 
       response.status = if request.error
-                          -32_700
+                          case request.error
+                          when Request::InvalidJsonrpcVersionError
+                            -32_700
+                          when Request::InvalidJsonError
+                            -32_600
+                          when CommandConnector::NotFoundError
+                            -32_601
+                          else
+                            -32_603
+                          end
                         elsif request.success?
                           0
                         else
@@ -42,8 +59,6 @@ module Foobara
 
                           # Going to steal some http codes to be less confusing
                           case error
-                          when CommandConnector::NotFoundError
-                            -32_601
                           when Foobara::Entity::NotFoundError
                             # TODO: we should not be coupled to Entities here...
                             # :nocov:
@@ -58,13 +73,18 @@ module Foobara
                             403
                             # :nocov:
                           when CommandConnector::UnknownError
-                            # :nocov:
                             -32_603
-                            # :nocov:
                           when Foobara::DataError
                             -32_602
                           end || -32_600
                         end
+    end
+
+    def request_to_command(request)
+      super
+    rescue CommandConnector::NoCommandFoundError => e
+      request.error = e
+      nil
     end
   end
 end
