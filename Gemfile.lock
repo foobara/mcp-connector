@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     foobara-jsonrpc-connector (0.0.1)
-      foobara
+      foobara (~> 0.0.93)
 
 GEM
   remote: https://rubygems.org/
@@ -257,11 +257,11 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
-  foob
-  foobara-dotenv-loader
+  foob (~> 0.0.1)
+  foobara-dotenv-loader (~> 0.0.1)
   foobara-jsonrpc-connector!
-  foobara-rubocop-rules
-  foobara-spec-helpers
+  foobara-rubocop-rules (~> 0.0.1)
+  foobara-spec-helpers (~> 0.0.1)
   guard-rspec
   irb
   pry
