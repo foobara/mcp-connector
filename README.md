@@ -1,48 +1,117 @@
-# Foobara::EmptyRubyProjectGenerator
+# Foobara::JsonrpcConnector
 
-TODO: Delete this and the text below, and describe your gem
+Provides a way to invoke Foobara commands over Jsonrpc version 2.0.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library
-into a gem. Put your Ruby code in the file `lib/foobara/empty_ruby_project_generator`. To experiment with that code,
-run `bin/console` for an interactive prompt.
+This does not provide a transport mechanism as jsonrpc itself is transport-agnostic.
+
+Implements the full spec including batched requests, errors, and "notifications" as defined by the spec located here:
+https://www.jsonrpc.org/specification
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it
-to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with
-instructions to install your gem from git if you don't plan to release to RubyGems.org.
-
-Install the gem and add to the application's Gemfile by executing:
-
-    $ bundle add UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
-
-If bundler is not being used to manage dependencies, install the gem by executing:
-
-    $ gem install UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
+Typical stuff: add `gem "foobara-jsonrpc-connector` to your Gemfile or .gemspec file. Or even just
+`gem install foobara-jsonrpc-connector` if just playing with it directly in scripts.
 
 ## Usage
 
-TODO: Write usage instructions here
+Here's an example of exposing a ComputeExponent command via jsonrpc:
 
-## Development
+```ruby
+#!/usr/bin/env ruby
 
-If using Foobara locally, then run the following (TODO: make this no-longer necessary.)
+require "foobara/jsonrpc_connector"
 
-```bash
-bundle config set disable_local_branch_check true
+class ComputeExponent < Foobara::Command
+  inputs do
+    base :integer, :required
+    exponent :integer, :required
+  end
+
+  result :integer
+
+  def execute
+    calculate_exponent
+
+    calculation
+  end
+
+  attr_accessor :calculation
+
+  def calculate_exponent
+    self.calculation = base ** exponent
+  end
+end
+
+connector = Foobara::JsonrpcConnector.new
+connector.connect(ComputeExponent)
+
+puts connector.run('{"jsonrpc": "2.0",
+                     "method": "ComputeExponent",
+                     "params": {"base": 2, "exponent": 3},
+                     "id": 100}')
 ```
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can
-also run `bin/console` for an interactive prompt that will allow you to experiment.
+This script outputs:
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the
-version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version,
-push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```
+$ ./compute_exponent.rb 
+{"jsonrpc":"2.0","id":100,"result":8}
+```
+
+Here's an example of a batch of commands:
+
+```ruby
+puts connector.run('[
+  {"jsonrpc": "2.0", "method": "SomeOrg::Math::ComputeExponent", "params": {"base": 2, "exponent": 3}, "id": 10},
+  {"jsonrpc": "2.0", "method": "SomeOrg::Math::ComputeExponent", "params": {"base": 2, "exponent": 3}},
+  {"jsonrpc": "2.0", "method": "SomeOrg::Math::ComputeExponent", "params": {"base": 2, "exponent": 3}, "id": 20}
+]')
+```
+
+Which outputs:
+
+```
+./compute_exponent_batch.rb 
+[{"jsonrpc":"2.0","id":10,"result":8},{"jsonrpc":"2.0","id":20,"result":8}]
+```
+
+Note that we don't get a result for the request in the batch without an ID. This is a "notification" according to the
+spec and is to have no response.
+
+Jsonrpc errors are also implemented. Here's an example:
+
+```ruby
+puts connector.run('{"jsonrpc": "2.0",
+                     "method": "ComputeExponent",
+                     "params": {"exponent": 3},
+                     "id": 100}')
+```
+
+Which outputs:
+
+```
+$ ./compute_exponent_error.rb 
+{"jsonrpc":"2.0","id":100,"error":
+  {"code":-32602,
+   "message":"Missing required attribute base",
+   "data":{"data.base.missing_required_attribute":{
+     "key":"data.base.missing_required_attribute",
+     "path":["base"],
+     "runtime_path":[],
+     "category":"data",
+     "symbol":"missing_required_attribute",
+     "message":"Missing required attribute base",
+     "context":{"attribute_name":"base"},
+     "is_fatal":true}
+   }
+  }
+}
+```
 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub
-at https://github.com/[USERNAME]/foobara-empty_ruby_project_generator.
+at https://github.com/foobara/jsonrpc-connector
 
 ## License
 
