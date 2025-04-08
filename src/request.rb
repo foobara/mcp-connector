@@ -2,7 +2,12 @@ module Foobara
   class JsonrpcConnector < CommandConnector
     class Request < CommandConnector::Request
       class InvalidJsonrpcVersionError < StandardError; end
+      class InvalidJsonrpcMethodError < StandardError; end
+      class InvalidJsonrpcParamsError < StandardError; end
+      class InvalidJsonrpcRequestStructureError < StandardError; end
+      class EmptyBatchError < StandardError; end
       class InvalidJsonError < StandardError; end
+      class FoobaraCommandsDoNotAcceptArraysError < StandardError; end
 
       attr_accessor :raw_request_json, :parsed_request_body, :request_id, :batch, :is_batch_child, :response
 
@@ -14,17 +19,29 @@ module Foobara
 
         unless error
           if batch?
-            self.batch = parsed_request_body.map do |request|
-              self.class.new(request, *, is_batch_child: true, **, &)
+            unless error
+              self.batch = parsed_request_body.map do |request|
+                self.class.new(request, *, is_batch_child: true, **, &)
+              end
             end
-          else
-            self.request_id = parsed_request_body["id"]
 
-            verify_jsonrpc_version
+            validate_batch_not_empty
+          else
+            validate_request_structure
 
             unless error
-              full_command_name = parsed_request_body["method"]
-              inputs = parsed_request_body["params"]
+              self.request_id = parsed_request_body["id"]
+
+              verify_jsonrpc_version
+
+              unless error
+                full_command_name = parsed_request_body["method"]
+                inputs = if parsed_request_body.key?("params")
+                           parsed_request_body["params"]
+                         else
+                           {}
+                         end
+              end
             end
           end
         end
@@ -34,6 +51,8 @@ module Foobara
         end
 
         super(*, full_command_name:, inputs:, action: "run", serializers:, **, &)
+
+        validate_inputs_and_name
       end
 
       def set_parsed_json
@@ -62,17 +81,64 @@ module Foobara
       end
 
       def notification?
+        return false if response&.status == -32_600
+
         if parsed_request_body
-          if batch?
+          if valid_batch?
             batch.all?(&:notification?)
           else
-            !parsed_request_body.key?("id")
+            parsed_request_body.is_a?(::Hash) && !parsed_request_body.key?("id")
           end
         end
       end
 
       def batch?
         parsed_request_body.is_a?(::Array)
+      end
+
+      def valid_batch?
+        batch? && batch && !batch.empty?
+      end
+
+      def validate_inputs_and_name
+        return if error
+        return if batch?
+
+        unless full_command_name.is_a?(String)
+          self.error = InvalidJsonrpcMethodError.new(
+            "Invalid jsonrpc method. Expected a string got #{full_command_name}"
+          )
+          error.set_backtrace(caller)
+          return
+        end
+
+        unless inputs.is_a?(::Hash)
+          self.error = if inputs.is_a?(::Array)
+                         FoobaraCommandsDoNotAcceptArraysError.new(
+                           "Foobara commands do not accept arrays as inputs"
+                         )
+                       else
+                         InvalidJsonrpcParamsError.new("Invalid jsonrpc params. Expected a hash got #{inputs}")
+                       end
+
+          error.set_backtrace(caller)
+        end
+      end
+
+      def validate_batch_not_empty
+        if batch? && batch.empty?
+          self.error = EmptyBatchError.new("An empty array/batch is not allowed")
+          error.set_backtrace(caller)
+        end
+      end
+
+      def validate_request_structure
+        unless parsed_request_body.is_a?(::Hash)
+          self.error = InvalidJsonrpcRequestStructureError.new(
+            "Invalid jsonrpc request structure. Expected a hash but got #{parsed_request_body}"
+          )
+          error.set_backtrace(caller)
+        end
       end
     end
   end

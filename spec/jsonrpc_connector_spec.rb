@@ -88,7 +88,7 @@ RSpec.describe Foobara::JsonrpcConnector do
       end
 
       it "returns an array of results but does not include the notifications" do
-        expect(response_body.size).to eq(3)
+        expect(response_body.size).to eq(4)
         expect(response_body[0]).to eq("jsonrpc" => "2.0", "result" => 4, "id" => 10)
 
         error = response_body[1]["error"]
@@ -96,7 +96,11 @@ RSpec.describe Foobara::JsonrpcConnector do
         expect(error["message"]).to be_a(String)
         expect(error["data"]).to be_a(Hash)
 
-        expect(response_body[2]).to eq("jsonrpc" => "2.0", "result" => 32, "id" => 30)
+        error = response_body[2]["error"]
+        expect(error["code"]).to eq(-32_600)
+        expect(error["message"]).to be_a(String)
+
+        expect(response_body[3]).to eq("jsonrpc" => "2.0", "result" => 32, "id" => 30)
       end
     end
 
@@ -107,7 +111,7 @@ RSpec.describe Foobara::JsonrpcConnector do
         expect(response_body).to eq(
           "jsonrpc" => "2.0",
           "error" => {
-            "code" => -32_700,
+            "code" => -32_600,
             "message" => "Unsupported jsonrpc version: #{json_rpc_version}"
           },
           "id" => request_id
@@ -127,7 +131,7 @@ RSpec.describe Foobara::JsonrpcConnector do
 
         expect(error.keys).to match_array(%w[code message])
 
-        expect(error["code"]).to eq(-32_600)
+        expect(error["code"]).to eq(-32_700)
         expect(error["message"]).to match(/Could not parse request: /)
       end
     end
@@ -149,6 +153,23 @@ RSpec.describe Foobara::JsonrpcConnector do
         expect(error["code"]).to eq(-32_602)
         expect(error["message"]).to be_a(String)
         expect(error["data"].keys).to eq(["data.exponent.cannot_cast"])
+      end
+
+      context "when inputs are an array which Foobara commands don't support at this time" do
+        let(:inputs) { [1, 2, 3] }
+
+        it "gives an error" do
+          expect(response_body.keys).to match_array(%w[jsonrpc error id])
+          expect(response_body["jsonrpc"]).to eq("2.0")
+          expect(response_body["id"]).to be(100)
+
+          error = response_body["error"]
+
+          expect(error.keys).to match_array(%w[code message])
+
+          expect(error["code"]).to eq(-32_602)
+          expect(error["message"]).to be_a(String)
+        end
       end
     end
 

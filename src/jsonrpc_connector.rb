@@ -10,7 +10,7 @@ module Foobara
     end
 
     def run_request(request)
-      if request.batch?
+      if request.batch? && !request.error
         request.batch.each do |batch_request|
           super(batch_request)
         end
@@ -30,12 +30,13 @@ module Foobara
       @json_serializer ||= Foobara::CommandConnectors::Serializers::JsonSerializer.new
     end
 
+    # TODO: Should this be implemented on response object instead??
     def set_response_body(response)
       request = response.request
 
       return if request.notification?
 
-      response.body = if request.batch?
+      response.body = if request.valid_batch?
                         request.batch.map do |batched_request|
                           batched_request.response.body
                         end.compact
@@ -72,18 +73,22 @@ module Foobara
     end
 
     def set_response_status(response)
-      return if response.request.batch?
+      return if response.request.valid_batch?
 
       request = response.request
 
       response.status = if request.error
                           case request.error
-                          when Request::InvalidJsonrpcVersionError
-                            -32_700
-                          when Request::InvalidJsonError
+                          when Request::InvalidJsonrpcVersionError, Request::InvalidJsonrpcMethodError,
+                            Request::InvalidJsonrpcParamsError, Request::EmptyBatchError,
+                            Request::InvalidJsonrpcRequestStructureError
                             -32_600
+                          when Request::InvalidJsonError
+                            -32_700
                           when CommandConnector::NotFoundError
                             -32_601
+                          when Request::FoobaraCommandsDoNotAcceptArraysError
+                            -32_602
                           else
                             -32_603
                           end
