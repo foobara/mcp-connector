@@ -11,7 +11,13 @@ RSpec.describe Foobara::JsonrpcConnector do
       { base: 2, exponent: 3 }
     end
     let(:jsonrpc_inputs) do
-      { jsonrpc: json_rpc_version, method:, params: inputs, id: request_id }
+      h = { jsonrpc: json_rpc_version, method:, params: inputs }
+
+      if request_id
+        h.merge!(id: request_id)
+      end
+
+      h
     end
     let(:method) { command_class.full_command_name }
     let(:json_rpc_version) { "2.0" }
@@ -58,6 +64,40 @@ RSpec.describe Foobara::JsonrpcConnector do
 
     it "executes the command and returns a response" do
       expect(response_body).to eq("jsonrpc" => "2.0", "result" => 8, "id" => request_id)
+    end
+
+    context "when it is a notification" do
+      let(:request_id) { nil }
+
+      it "does not return a response" do
+        expect {
+          expect(response).to be_nil
+        }.to change(command_class, :called_with).from([]).to([inputs])
+      end
+    end
+
+    context "when it's a batch of commands" do
+      let(:jsonrpc_inputs) do
+        [
+          { jsonrpc: "2.0", method: command_class.full_command_name, params: { base: 2, exponent: 2 }, id: 10 },
+          { jsonrpc: "2.0", method: command_class.full_command_name, params: { base: 2, exponent: 3 } },
+          { jsonrpc: "2.0", method: command_class.full_command_name, params: { base: "asdf", exponent: 4 }, id: 20 },
+          { bad_request: "really bad" },
+          { jsonrpc: "2.0", method: command_class.full_command_name, params: { base: 2, exponent: 5 }, id: 30 }
+        ]
+      end
+
+      it "returns an array of results but does not include the notifications" do
+        expect(response_body.size).to eq(3)
+        expect(response_body[0]).to eq("jsonrpc" => "2.0", "result" => 4, "id" => 10)
+
+        error = response_body[1]["error"]
+        expect(error["code"]).to eq(-32_602)
+        expect(error["message"]).to be_a(String)
+        expect(error["data"]).to be_a(Hash)
+
+        expect(response_body[2]).to eq("jsonrpc" => "2.0", "result" => 32, "id" => 30)
+      end
     end
 
     context "with a bad jsonrpc version" do
