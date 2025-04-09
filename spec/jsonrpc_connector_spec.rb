@@ -1,4 +1,4 @@
-RSpec.describe Foobara::JsonrpcConnector do
+RSpec.describe Foobara::McpConnector do
   after { Foobara.reset_alls }
 
   context "with a super basic command connected" do
@@ -10,20 +10,31 @@ RSpec.describe Foobara::JsonrpcConnector do
     let(:inputs) do
       { base: 2, exponent: 3 }
     end
-    let(:jsonrpc_inputs) do
-      h = { jsonrpc: json_rpc_version, method:, params: inputs }
+    let(:mcp_inputs) do
+      h = {
+        jsonrpc: jsonrpc_version,
+        method: "tools/call",
+        params: {
+          name: tool_name
+        }
+      }
+
+      if inputs && !inputs.empty?
+        h[:params][:arguments] = inputs
+      end
 
       if request_id
-        h.merge!(id: request_id)
+        h[:id] = request_id
       end
 
       h
     end
-    let(:method) { command_class.full_command_name }
-    let(:json_rpc_version) { "2.0" }
+    let(:tool_name) { command_class.full_command_name }
+    let(:method) { "tool/call" }
+    let(:jsonrpc_version) { "2.0" }
     let(:request_id) { 100 }
-    let(:input_json) do
-      JSON.generate(jsonrpc_inputs)
+    let(:request_json) do
+      JSON.generate(mcp_inputs)
     end
 
     let(:command_class) do
@@ -52,7 +63,7 @@ RSpec.describe Foobara::JsonrpcConnector do
     end
 
     let(:response) do
-      command_connector.run(input_json)
+      command_connector.run(request_json)
     end
     let(:response_body) do
       JSON.parse(response)
@@ -77,13 +88,17 @@ RSpec.describe Foobara::JsonrpcConnector do
     end
 
     context "when it's a batch of commands" do
-      let(:jsonrpc_inputs) do
+      let(:mcp_inputs) do
         [
-          { jsonrpc: "2.0", method: command_class.full_command_name, params: { base: 2, exponent: 2 }, id: 10 },
-          { jsonrpc: "2.0", method: command_class.full_command_name, params: { base: 2, exponent: 3 } },
-          { jsonrpc: "2.0", method: command_class.full_command_name, params: { base: "asdf", exponent: 4 }, id: 20 },
+          { jsonrpc: "2.0", method: "tools/call",
+            params: { name: command_class.full_command_name, arguments: { base: 2, exponent: 2 }, id: 10 } },
+          { jsonrpc: "2.0", method: "tools/call",
+            params: { name: command_class.full_command_name, arguments: { base: 2, exponent: 3 } } },
+          { jsonrpc: "2.0", method: "tools/call",
+            params: { name: command_class.full_command_name, arguments: { base: "asdf", exponent: 4 }, id: 20 } },
           { bad_request: "really bad" },
-          { jsonrpc: "2.0", method: command_class.full_command_name, params: { base: 2, exponent: 5 }, id: 30 }
+          { jsonrpc: "2.0", method: "tools/call",
+            params: { name: command_class.full_command_name, arguments: { base: 2, exponent: 5 }, id: 30 } }
         ]
       end
 
@@ -105,14 +120,14 @@ RSpec.describe Foobara::JsonrpcConnector do
     end
 
     context "with a bad jsonrpc version" do
-      let(:json_rpc_version) { "asdf" }
+      let(:jsonrpc_version) { "asdf" }
 
       it "gives an error" do
         expect(response_body).to eq(
           "jsonrpc" => "2.0",
           "error" => {
             "code" => -32_600,
-            "message" => "Unsupported jsonrpc version: #{json_rpc_version}"
+            "message" => "Unsupported jsonrpc version: #{jsonrpc_version}"
           },
           "id" => request_id
         )
@@ -120,7 +135,7 @@ RSpec.describe Foobara::JsonrpcConnector do
     end
 
     context "with invalid json" do
-      let(:input_json) { "{ asdfasdfasdf" }
+      let(:request_json) { "{ asdfasdfasdf" }
 
       it "gives an error" do
         expect(response_body.keys).to match_array(%w[jsonrpc error id])

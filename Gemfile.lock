@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    foobara-jsonrpc-connector (0.0.1)
+    foobara-mcp-connector (0.0.1)
       foobara (~> 0.0.94)
 
 GEM
@@ -259,7 +259,7 @@ PLATFORMS
 DEPENDENCIES
   foob (~> 0.0.1)
   foobara-dotenv-loader (~> 0.0.1)
-  foobara-jsonrpc-connector!
+  foobara-mcp-connector!
   foobara-rubocop-rules (~> 0.0.1)
   foobara-spec-helpers (~> 0.0.1)
   guard-rspec

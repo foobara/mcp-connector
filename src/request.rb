@@ -1,5 +1,5 @@
 module Foobara
-  class JsonrpcConnector < CommandConnector
+  class McpConnector < CommandConnector
     class Request < CommandConnector::Request
       class InvalidJsonrpcVersionError < StandardError; end
       class InvalidJsonrpcMethodError < StandardError; end

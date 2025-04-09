@@ -1,15 +1,15 @@
 require_relative "version"
 
 Gem::Specification.new do |spec|
-  spec.name = "foobara-jsonrpc-connector"
-  spec.version = Foobara::JsonrpcConnectorVersion::VERSION
+  spec.name = "foobara-mcp-connector"
+  spec.version = Foobara::McpConnectorVersion::VERSION
   spec.authors = ["Miles Georgi"]
   spec.email = ["azimux@gmail.com"]
 
   spec.summary = "No description. Add one."
-  spec.homepage = "https://github.com/foobara/jsonrpc-connector"
+  spec.homepage = "https://github.com/foobara/mcp-connector"
   spec.license = "MPL-2.0"
-  spec.required_ruby_version = Foobara::JsonrpcConnectorVersion::MINIMUM_RUBY_VERSION
+  spec.required_ruby_version = Foobara::McpConnectorVersion::MINIMUM_RUBY_VERSION
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage

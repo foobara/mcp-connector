@@ -1,7 +1,7 @@
 require_relative "version"
 
 source "https://rubygems.org"
-ruby Foobara::JsonrpcConnectorVersion::MINIMUM_RUBY_VERSION
+ruby Foobara::McpConnectorVersion::MINIMUM_RUBY_VERSION
 
 gemspec
 

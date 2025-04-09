@@ -1,5 +1,5 @@
 module Foobara
-  class JsonrpcConnector < CommandConnector
+  class McpConnector < CommandConnector
     def initialize(*, capture_unknown_error: true, **, &)
       super
     end
