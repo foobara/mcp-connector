@@ -1,17 +1,17 @@
 module Foobara
   class McpConnector < CommandConnector
-    class Request < CommandConnector::Request
+    # Isolating jsonrpc specific logic to this abstract class
+    class JsonrpcRequest < CommandConnector::Request
       class InvalidJsonrpcVersionError < StandardError; end
       class InvalidJsonrpcMethodError < StandardError; end
       class InvalidJsonrpcParamsError < StandardError; end
       class InvalidJsonrpcRequestStructureError < StandardError; end
       class EmptyBatchError < StandardError; end
       class InvalidJsonError < StandardError; end
-      class FoobaraCommandsDoNotAcceptArraysError < StandardError; end
 
-      attr_accessor :raw_request_json, :parsed_request_body, :request_id, :batch, :is_batch_child, :response
+      attr_accessor :raw_request_json, :parsed_request_body, :request_id, :batch, :is_batch_child
 
-      def initialize(request_json, *, serializers: nil, is_batch_child: false, **, &)
+      def initialize(request_json, *, is_batch_child: false, **, &)
         self.is_batch_child = is_batch_child
         self.raw_request_json = request_json
 
@@ -31,28 +31,12 @@ module Foobara
 
             unless error
               self.request_id = parsed_request_body["id"]
-
               verify_jsonrpc_version
-
-              unless error
-                full_command_name = parsed_request_body["method"]
-                inputs = if parsed_request_body.key?("params")
-                           parsed_request_body["params"]
-                         else
-                           {}
-                         end
-              end
             end
           end
         end
 
-        if batch? || error
-          full_command_name = inputs = nil
-        end
-
-        super(*, full_command_name:, inputs:, action: "run", serializers:, **, &)
-
-        validate_inputs_and_name
+        super(*, **, &)
       end
 
       def set_parsed_json
@@ -98,31 +82,6 @@ module Foobara
 
       def valid_batch?
         batch? && batch && !batch.empty?
-      end
-
-      def validate_inputs_and_name
-        return if error
-        return if batch?
-
-        unless full_command_name.is_a?(String)
-          self.error = InvalidJsonrpcMethodError.new(
-            "Invalid jsonrpc method. Expected a string got #{full_command_name}"
-          )
-          error.set_backtrace(caller)
-          return
-        end
-
-        unless inputs.is_a?(::Hash)
-          self.error = if inputs.is_a?(::Array)
-                         FoobaraCommandsDoNotAcceptArraysError.new(
-                           "Foobara commands do not accept arrays as inputs"
-                         )
-                       else
-                         InvalidJsonrpcParamsError.new("Invalid jsonrpc params. Expected a hash got #{inputs}")
-                       end
-
-          error.set_backtrace(caller)
-        end
       end
 
       def validate_batch_not_empty

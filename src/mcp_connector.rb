@@ -4,7 +4,7 @@ module Foobara
       super
     end
 
-    # TODO: maybe introduce a Runner interface?
+    # TODO: how to stream content out instead of buffering it up?
     def run(*args, **opts, &)
       super.body
     end
