@@ -1,4 +1,5 @@
 module Foobara
+  # TODO: somehow give a way to specify an association depth when registering commands?
   class McpConnector < CommandConnector
     attr_accessor :current_session, :server_name, :server_version, :instructions
 
@@ -58,7 +59,9 @@ module Foobara
         transformed_command_class.new
       end
     rescue CommandConnector::NoCommandFoundError => e
-      request.error = e
+      error = InvalidJsonrpcMethodError.new("Invalid jsonrpc method")
+      error.set_backtrace(e.backtrace)
+      request.error = error
       nil
     end
 

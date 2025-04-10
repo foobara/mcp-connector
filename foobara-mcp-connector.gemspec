@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
   ]
 
   spec.add_dependency "foobara", "~> 0.0.94"
+  spec.add_dependency "foobara-json-schema-generator", "~> 0.0.1"
 
   spec.require_paths = ["lib"]
   spec.metadata["rubygems_mfa_required"] = "true"

@@ -54,6 +54,8 @@ RSpec.describe Foobara::McpConnector do
           end
         end
 
+        description "Computes an exponent"
+
         inputs do
           base :integer, :required
           exponent :integer, :required
@@ -97,6 +99,35 @@ RSpec.describe Foobara::McpConnector do
         result = response_body["result"]
         expect(result["capabilities"]).to eq("tools" => { "listChanged" => false })
         expect(result["instructions"]).to be_a(String)
+      end
+    end
+
+    context "when listing tools (commands)" do
+      let(:method) { "tools/list" }
+      let(:params) { nil }
+
+      it "gives an array of tools" do
+        expect(response_body.keys).to match_array(%w[id jsonrpc result])
+        expect(response_body["id"]).to eq(request_id)
+        expect(response_body["jsonrpc"]).to eq("2.0")
+
+        result = response_body["result"]
+        expect(result["tools"]).to eq(
+          [
+            {
+              "name" => "SomeOrg::SomeDomain::ComputeExponent",
+              "description" => "Computes an exponent",
+              "inputSchema" => {
+                "type" => "object",
+                "properties" => {
+                  "base" => { "type" => "number" },
+                  "exponent" => { "type" => "number" }
+                },
+                "required" => %w[base exponent]
+              }
+            }
+          ]
+        )
       end
     end
 

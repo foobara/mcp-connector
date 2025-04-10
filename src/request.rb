@@ -12,15 +12,6 @@ module Foobara
         return @full_command_name if defined?(@full_command_name)
 
         @full_command_name = parsed_request_body&.[]("params")&.[]("name")
-
-        unless full_command_name.is_a?(String)
-          self.error = InvalidJsonrpcMethodError.new(
-            "Invalid jsonrpc method. Expected a string got #{full_command_name}"
-          )
-          error.set_backtrace(caller)
-        end
-
-        full_command_name
       end
 
       def inputs
@@ -28,7 +19,7 @@ module Foobara
 
         return @inputs if defined?(@inputs)
 
-        @inputs = parsed_request_body&.[]("params")&.[]("arguments")
+        @inputs = parsed_request_body&.[]("params")&.[]("arguments") || {}
 
         unless inputs.is_a?(::Hash)
           self.error = if inputs.is_a?(::Array)
