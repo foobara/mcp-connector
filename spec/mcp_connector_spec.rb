@@ -13,15 +13,9 @@ RSpec.describe Foobara::McpConnector do
     let(:mcp_inputs) do
       h = {
         jsonrpc: jsonrpc_version,
-        method: "tools/call",
-        params: {
-          name: tool_name
-        }
+        method:,
+        params:
       }
-
-      if inputs && !inputs.empty?
-        h[:params][:arguments] = inputs
-      end
 
       if request_id
         h[:id] = request_id
@@ -31,6 +25,18 @@ RSpec.describe Foobara::McpConnector do
     end
     let(:tool_name) { command_class.full_command_name }
     let(:method) { "tool/call" }
+    let(:params) do
+      h = {
+        name: tool_name
+      }
+
+      if arguments
+        h[:arguments] = arguments
+      end
+
+      h
+    end
+    let(:arguments) { inputs }
     let(:jsonrpc_version) { "2.0" }
     let(:request_id) { 100 }
     let(:request_json) do
@@ -71,6 +77,27 @@ RSpec.describe Foobara::McpConnector do
 
     before do
       connect_command
+    end
+
+    context "when performing 'initialize' request part of handshake" do
+      let(:method) { "initialize" }
+      let(:params) do
+        {
+          protocolVersion: "2025-03-26",
+          clientInfo: { name: "Some Client", version: "1.0.0" },
+          capabilities: {}
+        }
+      end
+
+      it "results in the expected and sets a session" do
+        expect(response_body.keys).to match_array(%w[id jsonrpc result])
+        expect(response_body["id"]).to eq(request_id)
+        expect(response_body["jsonrpc"]).to eq("2.0")
+
+        result = response_body["result"]
+        expect(result["capabilities"]).to eq("tools" => { "listChanged" => false })
+        expect(result["instructions"]).to be_a(String)
+      end
     end
 
     it "executes the command and returns a response" do

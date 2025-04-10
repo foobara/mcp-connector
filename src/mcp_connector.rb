@@ -1,12 +1,70 @@
 module Foobara
   class McpConnector < CommandConnector
-    def initialize(*, capture_unknown_error: true, **, &)
-      super
+    attr_accessor :current_session, :server_name, :server_version, :instructions
+
+    def initialize(
+      *,
+      capture_unknown_error: true,
+      server_name: default_server_name,
+      server_version: default_server_version,
+      instructions: default_instructions,
+      **,
+      &
+    )
+      self.server_name = server_name
+      self.server_version = server_version
+      self.instructions = instructions
+
+      super(*, capture_unknown_error:, **, &)
+    end
+
+    def default_server_name
+      "Foobara MCP Command connector"
+    end
+
+    def default_server_version
+      require_relative "../version"
+
+      Foobara::McpConnectorVersion::VERSION
+    end
+
+    def default_instructions
+      "This is a Foobara MCP command connector which exposes Foobara commands to you as tools that you can invoke."
     end
 
     # TODO: how to stream content out instead of buffering it up?
     def run(*args, **opts, &)
       super.body
+    end
+
+    def request_to_command(request)
+      action = request.action
+
+      case action
+      when "initialize"
+        command_class = find_builtin_command_class("Initialize")
+        full_command_name = command_class.full_command_name
+        inputs = request.params.merge(request:)
+      else
+        return super
+      end
+
+      transformed_command_class = transformed_command_from_name(full_command_name) ||
+                                  transform_command_class(command_class)
+
+      if inputs && !inputs.empty?
+        transformed_command_class.new(inputs)
+      else
+        transformed_command_class.new
+      end
+    rescue CommandConnector::NoCommandFoundError => e
+      request.error = e
+      nil
+    end
+
+    # TODO: figure out how to support multiple sessions
+    def session_created(session)
+      self.current_session = session
     end
 
     def run_request(request)
@@ -119,13 +177,6 @@ module Foobara
                             -32_602
                           end || -32_600
                         end
-    end
-
-    def request_to_command(request)
-      super
-    rescue CommandConnector::NoCommandFoundError => e
-      request.error = e
-      nil
     end
   end
 end

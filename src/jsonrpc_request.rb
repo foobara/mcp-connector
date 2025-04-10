@@ -9,7 +9,8 @@ module Foobara
       class EmptyBatchError < StandardError; end
       class InvalidJsonError < StandardError; end
 
-      attr_accessor :raw_request_json, :parsed_request_body, :request_id, :batch, :is_batch_child
+      # TODO: push response into base class?
+      attr_accessor :raw_request_json, :parsed_request_body, :request_id, :batch, :is_batch_child, :response
 
       def initialize(request_json, *, is_batch_child: false, **, &)
         self.is_batch_child = is_batch_child
@@ -19,10 +20,8 @@ module Foobara
 
         unless error
           if batch?
-            unless error
-              self.batch = parsed_request_body.map do |request|
-                self.class.new(request, *, is_batch_child: true, **, &)
-              end
+            self.batch = parsed_request_body.map do |request|
+              self.class.new(request, *, is_batch_child: true, **, &)
             end
 
             validate_batch_not_empty
@@ -51,6 +50,14 @@ module Foobara
                                        nil
                                      end
                                    end
+      end
+
+      def method
+        @method ||= parsed_request_body["method"]
+      end
+
+      def params
+        @params ||= parsed_request_body["params"]
       end
 
       def verify_jsonrpc_version
