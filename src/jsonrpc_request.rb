@@ -101,10 +101,15 @@ module Foobara
       def validate_request_structure
         unless parsed_request_body.is_a?(::Hash)
           self.error = InvalidJsonrpcRequestStructureError.new(
-            "Invalid jsonrpc request structure. Expected a hash but got #{parsed_request_body}"
+            "Invalid jsonrpc request structure. Expected a hash but got a #{parsed_request_body.class}"
           )
           error.set_backtrace(caller)
         end
+      end
+
+      # TODO: push this up into foobara gem
+      def error?
+        !!error
       end
     end
   end

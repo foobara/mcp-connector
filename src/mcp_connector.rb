@@ -45,6 +45,8 @@ module Foobara
     def request_to_command(request)
       action = request.action
 
+      return if request.error?
+
       case action
       when "initialize"
         command_class = find_builtin_command_class("Initialize")
@@ -57,11 +59,7 @@ module Foobara
       transformed_command_class = transformed_command_from_name(full_command_name) ||
                                   transform_command_class(command_class)
 
-      if inputs && !inputs.empty?
-        transformed_command_class.new(inputs)
-      else
-        transformed_command_class.new
-      end
+      transformed_command_class.new(inputs)
     rescue CommandConnector::NoCommandFoundError => e
       request.error = e
       nil

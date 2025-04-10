@@ -145,6 +145,56 @@ RSpec.describe Foobara::McpConnector do
       end
     end
 
+    context "when request is poorly structured" do
+      let(:request_json) { "100" }
+
+      it "is an error" do
+        expect(response_body.keys).to match_array(%w[jsonrpc error id])
+        expect(response_body["jsonrpc"]).to eq("2.0")
+        expect(response_body["id"]).to be_nil
+
+        expect(response_body["error"].keys).to match_array(%w[code message])
+        expect(response_body["error"]["code"]).to eq(-32_600)
+      end
+    end
+
+    context "when arguments are poorly structured" do
+      let(:arguments) { 100 }
+
+      it "is an error" do
+        expect(response_body.keys).to match_array(%w[jsonrpc error id])
+        expect(response_body["jsonrpc"]).to eq("2.0")
+        expect(response_body["id"]).to eq(request_id)
+
+        expect(response_body["error"].keys).to match_array(%w[code message])
+        expect(response_body["error"]["code"]).to eq(-32_600)
+      end
+    end
+
+    context "when requesting an unsupported method" do
+      let(:method) { "resources/list" }
+      let(:params) { nil }
+
+      it "is an error" do
+        expect {
+          response_body
+        }.to raise_error(Foobara::McpConnector::Request::MethodNotYetSupportedError)
+      end
+    end
+
+    context "when requesting a non-existent method" do
+      let(:method) { "asdfasdf" }
+      let(:params) { nil }
+
+      it "is an error" do
+        expect(response_body.keys).to match_array(%w[jsonrpc error id])
+        expect(response_body["id"]).to eq(request_id)
+
+        expect(response_body["error"].keys).to match_array(%w[code message])
+        expect(response_body["error"]["code"]).to eq(-32_600)
+      end
+    end
+
     context "when it's a batch of commands" do
       let(:mcp_inputs) do
         [
@@ -174,6 +224,19 @@ RSpec.describe Foobara::McpConnector do
         expect(error["message"]).to be_a(String)
 
         expect(response_body[3]).to eq("jsonrpc" => "2.0", "result" => 32, "id" => 30)
+      end
+
+      context "when the batch is empty" do
+        let(:mcp_inputs) { [] }
+
+        it "is an error" do
+          expect(response_body.keys).to match_array(%w[jsonrpc error id])
+          expect(response_body["jsonrpc"]).to eq("2.0")
+          expect(response_body["id"]).to be_nil
+
+          expect(response_body["error"].keys).to match_array(%w[code message])
+          expect(response_body["error"]["code"]).to eq(-32_600)
+        end
       end
     end
 
@@ -419,14 +482,15 @@ RSpec.describe Foobara::McpConnector do
         expect(response["id"]).to eq(3)
 
         # test that a notification gives no response
-        tools_call_notification = {
+        tools_call_notification = JSON.generate(
           jsonrpc: "2.0",
           method:,
           params: {
             name: "SomeOrg::SomeDomain::ComputeExponent",
             arguments: { base: 2, exponent: 3 }
           }
-        }
+        )
+        io_in_writer.puts tools_call_notification
         # no response to check
 
         # Test a batch of tools/call requests
@@ -438,7 +502,7 @@ RSpec.describe Foobara::McpConnector do
             { jsonrpc: "2.0", method:,
               params: { name:, arguments: { base: 2, exponent: 3 } } },
             { jsonrpc: "2.0", method:,
-              id: 4, params: { name:, arguments: { base: "asdf", exponent: 4 } } },
+              id: 4, params: { name:, arguments: {} } },
             { bad_request: "really bad" },
             { jsonrpc: "2.0", method:,
               id: 5, params: { name:, arguments: { base: 2, exponent: 5 } } }
@@ -516,10 +580,7 @@ RSpec.describe Foobara::McpConnector do
         # with command that explodes
         io_in_writer.puts JSON.generate(
           jsonrpc: "2.0", method:,
-          params: {
-            name: command_that_explodes_class.full_command_name,
-            arguments: { base: 2, exponent: 3 }
-          },
+          params: { name: command_that_explodes_class.full_command_name },
           id: 8
         )
 
@@ -529,6 +590,7 @@ RSpec.describe Foobara::McpConnector do
         expect(response["id"]).to eq(8)
         expect(response["error"].keys).to match_array(%w[code message])
         expect(response["error"]["code"]).to eq(-32_603)
+        expect(response["error"]["message"]).to eq("kaboom!!")
 
         io_in_writer.close
       end

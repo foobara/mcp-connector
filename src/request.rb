@@ -27,7 +27,9 @@ module Foobara
                            "Foobara commands do not accept arrays as inputs"
                          )
                        else
-                         InvalidJsonrpcParamsError.new("Invalid jsonrpc params. Expected a hash got #{inputs}")
+                         InvalidJsonrpcParamsError.new(
+                           "Invalid MCP arguments structure. Expected a hash got a #{inputs.class}"
+                         )
                        end
 
           error.set_backtrace(caller)
@@ -48,7 +50,9 @@ module Foobara
           "resources/list", "resources/read", "resources/subscribe", "resources/unsubscribe"
           raise MethodNotYetSupportedError, "#{method} not yet supported!"
         else
-          raise "Unknown method #{method}"
+          self.error = InvalidJsonrpcMethodError.new("Unknown method: #{method}")
+          error.set_backtrace(caller)
+          nil
         end
       end
     end
