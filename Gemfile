@@ -6,6 +6,7 @@ ruby Foobara::McpConnectorVersion::MINIMUM_RUBY_VERSION
 gemspec
 
 # gem "foobara", path: "../foobara"
+# gem "foobara-json-schema-generator", path: "../json-schema-generator"
 
 gem "foobara-dotenv-loader", "~> 0.0.1"
 

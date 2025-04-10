@@ -21,7 +21,7 @@ module Foobara
         unless error
           if batch?
             self.batch = parsed_request_body.map do |request|
-              self.class.new(request, *, is_batch_child: true, **, &)
+              self.class.new(request, *, is_batch_child: true, **, serializers: nil, &)
             end
 
             validate_batch_not_empty

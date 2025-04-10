@@ -24,7 +24,7 @@ RSpec.describe Foobara::McpConnector do
       h
     end
     let(:tool_name) { command_class.full_command_name }
-    let(:method) { "tool/call" }
+    let(:method) { "tools/call" }
     let(:params) do
       h = {
         name: tool_name
@@ -149,14 +149,14 @@ RSpec.describe Foobara::McpConnector do
       let(:mcp_inputs) do
         [
           { jsonrpc: "2.0", method: "tools/call",
-            params: { name: command_class.full_command_name, arguments: { base: 2, exponent: 2 }, id: 10 } },
+            params: { name: command_class.full_command_name, arguments: { base: 2, exponent: 2 } }, id: 10 },
           { jsonrpc: "2.0", method: "tools/call",
             params: { name: command_class.full_command_name, arguments: { base: 2, exponent: 3 } } },
           { jsonrpc: "2.0", method: "tools/call",
-            params: { name: command_class.full_command_name, arguments: { base: "asdf", exponent: 4 }, id: 20 } },
+            params: { name: command_class.full_command_name, arguments: { base: "asdf", exponent: 4 } }, id: 20 },
           { bad_request: "really bad" },
           { jsonrpc: "2.0", method: "tools/call",
-            params: { name: command_class.full_command_name, arguments: { base: 2, exponent: 5 }, id: 30 } }
+            params: { name: command_class.full_command_name, arguments: { base: 2, exponent: 5 } }, id: 30 }
         ]
       end
 
@@ -247,7 +247,7 @@ RSpec.describe Foobara::McpConnector do
     end
 
     context "with a bad command name" do
-      let(:method) { "BadCommandName" }
+      let(:tool_name) { "BadCommandName" }
 
       it "gives an error" do
         expect(response_body.keys).to match_array(%w[jsonrpc error id])

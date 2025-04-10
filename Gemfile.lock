@@ -3,6 +3,7 @@ PATH
   specs:
     foobara-mcp-connector (0.0.1)
       foobara (~> 0.0.94)
+      foobara-json-schema-generator (~> 0.0.1)
 
 GEM
   remote: https://rubygems.org/
@@ -54,7 +55,7 @@ GEM
       foobara-type-generator
       foobara-typescript-react-command-form-generator
       foobara-typescript-remote-command-generator
-    foobara (0.0.95)
+    foobara (0.0.96)
       bigdecimal
       foobara-lru-cache (~> 0.0.2)
       foobara-util (~> 0.0.11)
@@ -69,15 +70,17 @@ GEM
       foobara-files-generator
     foobara-dotenv-loader (0.0.3)
       dotenv
-    foobara-empty-ruby-project-generator (0.0.14)
-      extract-repo
-      foobara
-      foobara-files-generator
+    foobara-empty-ruby-project-generator (0.0.15)
+      extract-repo (~> 0.0.1)
+      foobara (~> 0.0.94)
+      foobara-files-generator (~> 0.0.1)
     foobara-empty-typescript-react-project-generator (0.0.4)
       foobara
       foobara-files-generator
     foobara-files-generator (0.0.5)
       foobara
+    foobara-json-schema-generator (0.0.4)
+      foobara (~> 0.0.92)
     foobara-local-files-crud-driver-generator (0.0.3)
       foobara
       foobara-files-generator
@@ -111,12 +114,9 @@ GEM
     foobara-type-generator (0.0.4)
       foobara
       foobara-files-generator
-    foobara-typescript-react-command-form-generator (0.0.8)
-      foobara
-      foobara-files-generator
-      foobara-typescript-remote-command-generator
-    foobara-typescript-remote-command-generator (0.0.16)
-      foobara (~> 0.0.88)
+    foobara-typescript-react-command-form-generator (0.0.11)
+      foobara-typescript-remote-command-generator (~> 0.0.1)
+    foobara-typescript-remote-command-generator (0.0.17)
       foobara-files-generator (~> 0.0.1)
     foobara-util (0.0.11)
     formatador (1.1.0)

@@ -59,9 +59,7 @@ module Foobara
         transformed_command_class.new
       end
     rescue CommandConnector::NoCommandFoundError => e
-      error = InvalidJsonrpcMethodError.new("Invalid jsonrpc method")
-      error.set_backtrace(e.backtrace)
-      request.error = error
+      request.error = e
       nil
     end
 
