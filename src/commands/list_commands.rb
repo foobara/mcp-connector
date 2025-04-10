@@ -13,6 +13,7 @@ module Foobara
           tools :array do
             name :string, :required
             description :string, :allow_nil
+            # TODO: make sure attributes can be used as a type without extension
             inputSchema :duck, :required
             # TODO: implement annotations!!
           end
@@ -29,21 +30,18 @@ module Foobara
 
         def build_tools_array
           self.tools_array = list.map do |command|
+            inputs_type = command.inputs_type ||
+                          Domain.current.foobara_type_from_declaration({})
+
             h = {
-              name: command.full_command_name
+              name: command.full_command_name,
+              inputSchema: Foobara::JsonSchemaGenerator.to_json_schema_structure(inputs_type)
             }
 
             description = command.description
 
             if description
               h[:description] = description
-            end
-
-            inputs_type = command.inputs_type
-
-            if inputs_type
-              input_schema = Foobara::JsonSchemaGenerator.to_json_schema_structure(inputs_type)
-              h[:inputSchema] = input_schema
             end
 
             h

@@ -38,6 +38,10 @@ module Foobara
       super.body
     end
 
+    def run_stdio_server(io_in: $stdin, io_out: $stdout, io_err: $stderr)
+      StdioRunner.new(self).run(io_in: io_in, io_out: io_out, io_err: io_err)
+    end
+
     def request_to_command(request)
       action = request.action
 

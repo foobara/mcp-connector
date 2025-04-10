@@ -1,7 +1,7 @@
 RSpec.describe Foobara::McpConnector do
   after { Foobara.reset_alls }
 
-  context "with a super basic command connected" do
+  describe "with a super basic command connected" do
     let(:command_connector) { described_class.new(capture_unknown_error:) }
     let(:connect_command) do
       command_connector.connect(command_class)
@@ -317,6 +317,220 @@ RSpec.describe Foobara::McpConnector do
             expect(error["message"]).to be_a(String)
           end
         end
+      end
+    end
+
+    describe "#run_stdio_server" do
+      let(:io_in_pipe) { IO.pipe }
+      let(:io_out_pipe) { IO.pipe }
+      let(:io_in_reader) { io_in_pipe.first }
+      let(:io_in_writer) { io_in_pipe.last }
+      let(:io_out_reader) { io_out_pipe.first }
+      let(:io_out_writer) { io_out_pipe.last }
+
+      let(:io_in) { io_in_reader }
+      let(:io_out) { io_out_writer }
+      let(:io_err) { StringIO.new }
+
+      let(:command_that_explodes_class) do
+        stub_class "CommandThatExplodes", Foobara::Command do
+          def execute
+            raise "kaboom!!"
+          end
+        end
+      end
+
+      before do
+        command_connector.connect(command_that_explodes_class)
+      end
+
+      it "runs a stdio server and handles requests/responses" do
+        Thread.new do
+          command_connector.run_stdio_server(io_in:, io_out:, io_err:)
+        end
+
+        initialize_request = JSON.generate(
+          jsonrpc: "2.0",
+          method: "initialize",
+          params: {
+            protocolVersion: "2025-03-26",
+            clientInfo: { name: "Some Client", version: "1.0.0" },
+            capabilities: {}
+          },
+          id: 1
+        )
+
+        io_in_writer.puts initialize_request
+
+        response = JSON.parse(io_out_reader.readline)
+
+        expect(response.keys).to match_array(%w[id result jsonrpc])
+        expect(response["result"].keys).to match_array(%w[capabilities instructions protocolVersion serverInfo])
+
+        expect(response["id"]).to eq(1)
+        expect(response["result"]["capabilities"]).to eq("tools" => { "listChanged" => false })
+        expect(response["result"]["instructions"]).to be_a(String)
+
+        list_tools_request = JSON.generate(
+          method: "tools/list", params: nil, id: 2, jsonrpc: "2.0"
+        )
+        io_in_writer.puts list_tools_request
+
+        response = JSON.parse(io_out_reader.readline)
+
+        expect(response.keys).to match_array(%w[id result jsonrpc])
+        expect(response["result"].keys).to match_array(%w[tools])
+
+        expect(response["id"]).to eq(2)
+        expect(response["result"]["tools"]).to contain_exactly(
+          {
+            "description" => "Computes an exponent",
+            "inputSchema" => {
+              "properties" => {
+                "base" => { "type" => "number" },
+                "exponent" => { "type" => "number" }
+              },
+              "required" => %w[base exponent],
+              "type" => "object"
+            },
+            "name" => "SomeOrg::SomeDomain::ComputeExponent"
+          },
+          {
+            "inputSchema" => { "type" => "object" },
+            "name" => "CommandThatExplodes"
+          }
+        )
+
+        name = command_class.full_command_name
+        method = "tools/call"
+
+        tools_call_request = JSON.generate(
+          jsonrpc: "2.0",
+          method:,
+          params: { name:, arguments: { base: 2, exponent: 3 } },
+          id: 3
+        )
+        io_in_writer.puts tools_call_request
+
+        response = JSON.parse(io_out_reader.readline)
+
+        expect(response.keys).to match_array(%w[id result jsonrpc])
+        expect(response["result"]).to eq(8)
+        expect(response["id"]).to eq(3)
+
+        # test that a notification gives no response
+        tools_call_notification = {
+          jsonrpc: "2.0",
+          method:,
+          params: {
+            name: "SomeOrg::SomeDomain::ComputeExponent",
+            arguments: { base: 2, exponent: 3 }
+          }
+        }
+        # no response to check
+
+        # Test a batch of tools/call requests
+
+        batch_request = JSON.generate(
+          [
+            { jsonrpc: "2.0", method:,
+              id: 3, params: { name:, arguments: { base: 2, exponent: 2 } } },
+            { jsonrpc: "2.0", method:,
+              params: { name:, arguments: { base: 2, exponent: 3 } } },
+            { jsonrpc: "2.0", method:,
+              id: 4, params: { name:, arguments: { base: "asdf", exponent: 4 } } },
+            { bad_request: "really bad" },
+            { jsonrpc: "2.0", method:,
+              id: 5, params: { name:, arguments: { base: 2, exponent: 5 } } }
+          ]
+        )
+
+        io_in_writer.puts batch_request
+
+        response = JSON.parse(io_out_reader.readline)
+
+        expect(response).to be_an(Array)
+        expect(response.size).to eq(4)
+
+        expect(response[0].keys).to match_array(%w[id result jsonrpc])
+        expect(response[0]["result"]).to eq(4)
+        expect(response[0]["id"]).to eq(3)
+
+        expect(response[1].keys).to match_array(%w[id error jsonrpc])
+        expect(response[1]["id"]).to eq(4)
+        expect(response[1]["error"].keys).to match_array(%w[code data message])
+        expect(response[1]["error"]["code"]).to eq(-32_602)
+
+        expect(response[2].keys).to match_array(%w[id error jsonrpc])
+        expect(response[2]["id"]).to be_nil
+        expect(response[2]["error"].keys).to match_array(%w[code message])
+        expect(response[2]["error"]["code"]).to eq(-32_600)
+
+        expect(response[3].keys).to match_array(%w[id result jsonrpc])
+        expect(response[3]["result"]).to eq(32)
+        expect(response[3]["id"]).to eq(5)
+
+        # Test a bad version
+
+        bad_version_request = JSON.generate(
+          jsonrpc: "1.5", method:,
+          params: { name:,
+                    arguments: { base: 2, exponent: 3 } },
+          id: 6
+        )
+
+        io_in_writer.puts bad_version_request
+
+        response = JSON.parse(io_out_reader.readline)
+
+        expect(response.keys).to match_array(%w[id error jsonrpc])
+        expect(response["id"]).to eq(6)
+        expect(response["error"].keys).to match_array(%w[code message])
+        expect(response["error"]["code"]).to eq(-32_600)
+
+        # test bad json
+        io_in_writer.puts "{ asfdasfasdfasdf"
+
+        response = JSON.parse(io_out_reader.readline)
+
+        expect(response.keys).to match_array(%w[id error jsonrpc])
+        expect(response["id"]).to be_nil
+        expect(response["error"].keys).to match_array(%w[code message])
+        expect(response["error"]["code"]).to eq(-32_700)
+
+        # test with a bad command name
+        io_in_writer.puts JSON.generate(
+          jsonrpc: "2.0",
+          method: "tools/call",
+          params: { name: "BadCommandName", arguments: { base: 2, exponent: 3 } },
+          id: 7
+        )
+
+        response = JSON.parse(io_out_reader.readline)
+
+        expect(response.keys).to match_array(%w[id error jsonrpc])
+        expect(response["id"]).to eq(7)
+        expect(response["error"].keys).to match_array(%w[code message])
+        expect(response["error"]["code"]).to eq(-32_601)
+
+        # with command that explodes
+        io_in_writer.puts JSON.generate(
+          jsonrpc: "2.0", method:,
+          params: {
+            name: command_that_explodes_class.full_command_name,
+            arguments: { base: 2, exponent: 3 }
+          },
+          id: 8
+        )
+
+        response = JSON.parse(io_out_reader.readline)
+
+        expect(response.keys).to match_array(%w[id error jsonrpc])
+        expect(response["id"]).to eq(8)
+        expect(response["error"].keys).to match_array(%w[code message])
+        expect(response["error"]["code"]).to eq(-32_603)
+
+        io_in_writer.close
       end
     end
   end
