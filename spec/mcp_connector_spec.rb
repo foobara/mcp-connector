@@ -150,7 +150,9 @@ RSpec.describe Foobara::McpConnector do
     end
 
     it "executes the command and returns a response" do
-      expect(response_body).to eq("jsonrpc" => "2.0", "result" => 8, "id" => request_id)
+      expect(response_body).to eq("jsonrpc" => "2.0", "result" => {
+                                    "content" => [{ "type" => "text", "text" => "8" }]
+                                  }, "id" => request_id)
     end
 
     context "when it is a notification" do
@@ -240,7 +242,13 @@ RSpec.describe Foobara::McpConnector do
 
       it "returns an array of results but does not include the notifications" do
         expect(response_body.size).to eq(4)
-        expect(response_body[0]).to eq("jsonrpc" => "2.0", "result" => 4, "id" => 10)
+        expect(response_body[0]).to eq(
+          "jsonrpc" => "2.0",
+          "result" => {
+            "content" => [{ "type" => "text", "text" => "4" }]
+          },
+          "id" => 10
+        )
 
         error = response_body[1]["error"]
         expect(error["code"]).to eq(-32_602)
@@ -251,7 +259,13 @@ RSpec.describe Foobara::McpConnector do
         expect(error["code"]).to eq(-32_600)
         expect(error["message"]).to be_a(String)
 
-        expect(response_body[3]).to eq("jsonrpc" => "2.0", "result" => 32, "id" => 30)
+        expect(response_body[3]).to eq(
+          "jsonrpc" => "2.0",
+          "result" => {
+            "content" => [{ "type" => "text", "text" => "32" }]
+          },
+          "id" => 30
+        )
       end
 
       context "when the batch is empty" do
@@ -506,7 +520,7 @@ RSpec.describe Foobara::McpConnector do
         response = JSON.parse(io_out_reader.readline)
 
         expect(response.keys).to match_array(%w[id result jsonrpc])
-        expect(response["result"]).to eq(8)
+        expect(response["result"]["content"][0]["text"]).to eq("8")
         expect(response["id"]).to eq(3)
 
         # test that a notification gives no response
@@ -545,7 +559,7 @@ RSpec.describe Foobara::McpConnector do
         expect(response.size).to eq(4)
 
         expect(response[0].keys).to match_array(%w[id result jsonrpc])
-        expect(response[0]["result"]).to eq(4)
+        expect(response[0]["result"]["content"][0]["text"]).to eq("4")
         expect(response[0]["id"]).to eq(3)
 
         expect(response[1].keys).to match_array(%w[id error jsonrpc])
@@ -559,7 +573,7 @@ RSpec.describe Foobara::McpConnector do
         expect(response[2]["error"]["code"]).to eq(-32_600)
 
         expect(response[3].keys).to match_array(%w[id result jsonrpc])
-        expect(response[3]["result"]).to eq(32)
+        expect(response[3]["result"]["content"][0]["text"]).to eq("32")
         expect(response[3]["id"]).to eq(5)
 
         # Test a bad version

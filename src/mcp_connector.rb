@@ -108,6 +108,15 @@ module Foobara
       request = response.request
 
       unless request.notification?
+        # TODO: total hack, clean this up somehow...
+        if request.tool_call? && request.success?
+          result = response.body[:result]
+
+          result = json_serializer.serialize(result)
+
+          response.body[:result] = { content: [{ type: "text", text: result }] }
+        end
+
         if request.serializer
           response.body = request.serializer.process_value!(response.body)
         end

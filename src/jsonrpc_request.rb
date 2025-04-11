@@ -53,7 +53,7 @@ module Foobara
       end
 
       def method
-        @method ||= parsed_request_body["method"]
+        @method ||= parsed_request_body.is_a?(::Hash) && parsed_request_body["method"]
       end
 
       def params

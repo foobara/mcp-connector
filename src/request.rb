@@ -38,6 +38,14 @@ module Foobara
         inputs
       end
 
+      def tool_call?
+        !batch? && method == "tools/call"
+      end
+
+      def success?
+        !error && super
+      end
+
       def action
         case method
         when "tools/call"
