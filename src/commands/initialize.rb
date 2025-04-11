@@ -3,6 +3,11 @@ require_relative "../request"
 module Foobara
   class McpConnector < CommandConnector
     module Commands
+      SUPPORTED_VERSIONS = %w[
+        2024-11-05
+        2025-03-26
+      ].freeze
+
       class Initialize < Command
         inputs do
           request Request, :required
@@ -44,11 +49,12 @@ module Foobara
         def execute
           create_session
           notify_connector_of_session
+          determine_version
 
           build_result
         end
 
-        attr_accessor :session
+        attr_accessor :session, :version
 
         def create_session
           self.session = Session.new(inputs.except(:request))
@@ -62,10 +68,22 @@ module Foobara
           request.command_connector
         end
 
+        def determine_version
+          versions_to_choose_from = SUPPORTED_VERSIONS.select do |supported_version|
+            supported_version <= protocolVersion
+          end
+
+          if versions_to_choose_from.empty?
+            versions_to_choose_from = SUPPORTED_VERSIONS
+          end
+
+          self.version = versions_to_choose_from.max
+        end
+
         # Just hard-coding a bunch of these values to a limited set of abilities for now
         def build_result
           {
-            protocolVersion: "2025-03-26",
+            protocolVersion: version,
             capabilities: {
               # We only support tools for now and don't yet support updating lists of tools
               tools: { listChanged: false }

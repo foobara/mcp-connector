@@ -85,11 +85,12 @@ RSpec.describe Foobara::McpConnector do
       let(:method) { "initialize" }
       let(:params) do
         {
-          protocolVersion: "2025-03-26",
+          protocolVersion: protocol_version,
           clientInfo: { name: "Some Client", version: "1.0.0" },
           capabilities: {}
         }
       end
+      let(:protocol_version) { "2025-03-26" }
 
       it "results in the expected and sets a session" do
         expect(response_body.keys).to match_array(%w[id jsonrpc result])
@@ -99,6 +100,23 @@ RSpec.describe Foobara::McpConnector do
         result = response_body["result"]
         expect(result["capabilities"]).to eq("tools" => { "listChanged" => false })
         expect(result["instructions"]).to be_a(String)
+        expect(result["protocolVersion"]).to eq("2025-03-26")
+      end
+
+      context "when 2024-11-05 is requested" do
+        let(:protocol_version) { "2024-11-05" }
+
+        it "chooses 2024-11-05" do
+          expect(response_body["result"]["protocolVersion"]).to eq("2024-11-05")
+        end
+      end
+
+      context "when an unsupported date is chosen" do
+        let(:protocol_version) { "2023-01-01" }
+
+        it "chooses the latest supported version" do
+          expect(response_body["result"]["protocolVersion"]).to eq("2025-03-26")
+        end
       end
     end
 
