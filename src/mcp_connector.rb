@@ -82,13 +82,32 @@ module Foobara
       end
     end
 
-    # We add a serializer to the top-level request but not to the children of a batch requests
-    def build_request(*, serializers: json_serializer, **, &)
-      super(*, **, serializers:, &)
+    def build_request(*, **, &)
+      request = super
+
+      # We add a serializer to the top-level request but not to the children of a batch requests
+
+      request.serializers = [*request.serializers, json_serializer]
+
+      request
     end
 
     def json_serializer
       @json_serializer ||= Foobara::CommandConnectors::Serializers::JsonSerializer.new
+    end
+
+    # TODO: feels awkward needing to override this for such basic/typical behavior
+    # TODO: fix this interface/pattern higher-up
+    def serialize_response_body(response)
+      super
+
+      request = response.request
+
+      unless request.notification?
+        if request.serializer
+          response.body = request.serializer.process_value!(response.body)
+        end
+      end
     end
 
     # TODO: Should this be implemented on response object instead??
@@ -120,17 +139,6 @@ module Foobara
                           end
                         end
                       end
-
-      if request.serializer
-        response.body = request.serializer.process_value!(response.body)
-      end
-    end
-
-    def request_to_response(request)
-      response = self.class::Response.new(request:)
-      # TODO: push this up??
-      request.response = response
-      response
     end
 
     def set_response_status(response)
