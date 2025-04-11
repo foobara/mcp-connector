@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+if File.exist?("#{__dir__}/../Gemfile")
+  # Seems we are not being ran as a gem executable. Let's bundle since we might be in a test or
+  # we might be pointed at via path:, or being ran locally in a dev setup, or some other similar situation.
+  ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../Gemfile", __dir__)
+  require "bundler/setup"
+end
+
+require "foobara/mcp_connector"
+
+class BuildSuperDuperSecret < Foobara::Command
+  inputs do
+    seed :integer, :required
+  end
+  result :integer
+
+  def execute
+    seed * seed * seed
+  end
+end
+
+mcp_connector = Foobara::McpConnector.new
+mcp_connector.connect(BuildSuperDuperSecret)
+mcp_connector.run_stdio_server

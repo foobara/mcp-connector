@@ -36,7 +36,22 @@ module Foobara
 
     # TODO: how to stream content out instead of buffering it up?
     def run(*args, **opts, &)
-      super.body
+      File.open("mcp-connector.log", "a") do |f|
+        f.puts("#{Time.now}: Request: #{args.first.strip}")
+        f.flush
+      end
+      super.body.tap do |response|
+        File.open("mcp-connector.log", "a") do |f|
+          f.puts("#{Time.now}: Response: #{response&.strip}")
+          f.flush
+        end
+      end
+    rescue => e
+      File.open("mcp-connector.log", "a") do |f|
+        f.puts("#{Time.now}: Error: #{e}")
+        f.flush
+      end
+      raise
     end
 
     def run_stdio_server(io_in: $stdin, io_out: $stdout, io_err: $stderr)
