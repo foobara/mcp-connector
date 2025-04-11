@@ -13,3 +13,6 @@
 /.idea/
 /.env.*.local
 /.env.local
+
+/examples/local_data
+mcp-connector.log

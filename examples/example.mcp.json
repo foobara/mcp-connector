@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mcp-test": {
+      "type": "stdio",
+      "command": "/bin/bash",
+      "args": [
+        "/home/miles/gitlocal/foobara/mcp-connector/mcp-connector-test"
+      ],
+      "env": {}
+    }
+  }
+}
