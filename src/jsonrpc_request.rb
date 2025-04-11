@@ -10,7 +10,7 @@ module Foobara
       class InvalidJsonError < StandardError; end
 
       # TODO: push response into base class?
-      attr_accessor :raw_request_json, :parsed_request_body, :request_id, :batch, :is_batch_child, :response
+      attr_accessor :raw_request_json, :parsed_request_body, :request_id, :batch, :is_batch_child
 
       def initialize(request_json, *, is_batch_child: false, **, &)
         self.is_batch_child = is_batch_child
@@ -21,7 +21,7 @@ module Foobara
         unless error
           if batch?
             self.batch = parsed_request_body.map do |request|
-              self.class.new(request, *, is_batch_child: true, **, serializers: nil, &)
+              self.class.new(request, *, is_batch_child: true, **, &)
             end
 
             validate_batch_not_empty
