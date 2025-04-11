@@ -44,7 +44,9 @@ module Foobara
           "run"
         when "tools/list"
           "list"
-        when "initialize", "ping"
+        when "initialize", "ping",
+          "notifications/initialized", "notifications/cancelled", "notifications/progress",
+          "notifications/roots/list_changed"
           method
         when "completion/complete", "logging/setLevel", "prompts/get", "prompts/list",
           "resources/list", "resources/read", "resources/subscribe", "resources/unsubscribe"

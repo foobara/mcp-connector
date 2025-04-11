@@ -213,6 +213,16 @@ RSpec.describe Foobara::McpConnector do
       end
     end
 
+    context "when it is a noop request like notifications/initialized" do
+      let(:method) { "notifications/initialized" }
+      let(:params) { nil }
+      let(:request_id) { nil }
+
+      it "does not return a response" do
+        expect(response).to be_nil
+      end
+    end
+
     context "when it's a batch of commands" do
       let(:mcp_inputs) do
         [

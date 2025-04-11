@@ -50,11 +50,15 @@ module Foobara
       case action
       when "initialize"
         command_class = find_builtin_command_class("Initialize")
-        full_command_name = command_class.full_command_name
-        inputs = request.params.merge(request:)
+      when "notifications/initialized", "notifications/cancelled", "notifications/progress",
+        "notifications/roots/list_changed"
+        command_class = find_builtin_command_class("Noop")
       else
         return super
       end
+
+      full_command_name = command_class.full_command_name
+      inputs = (request.params || {}).merge(request:)
 
       transformed_command_class = transformed_command_from_name(full_command_name) ||
                                   transform_command_class(command_class)
