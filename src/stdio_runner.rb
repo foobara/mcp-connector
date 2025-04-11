@@ -13,12 +13,14 @@ module Foobara
 
           if response
             io_out.puts response
+            io_out.flush
           end
         rescue => e
           # :nocov:
           self.last_unexpected_error = e
           io_err.puts e.message
           io_err.puts e.backtrace
+          io_err.flush
           # :nocov:
         end
       end
