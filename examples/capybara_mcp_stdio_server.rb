@@ -1,11 +1,13 @@
 #!/usr/bin/env ruby
 
+ENV["BUNDLE_GEMFILE"] ||= File.expand_path("#{__dir__}/Gemfile")
+require "bundler/setup"
+
 require "foobara/mcp_connector"
 require_relative "create_initial_capybaras"
 
-mcp_connector = Foobara::McpConnector.new(
-  default_serializers: Foobara::CommandConnectors::Serializers::AtomicSerializer
-)
+mcp_connector = Foobara::McpConnector.new
+
 mcp_connector.connect(FindAllCapybaras)
 
 mcp_connector.run_stdio_server

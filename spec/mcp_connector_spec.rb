@@ -435,7 +435,6 @@ RSpec.describe Foobara::McpConnector do
 
       let(:io_in) { io_in_reader }
       let(:io_out) { io_out_writer }
-      let(:io_err) { StringIO.new }
 
       let(:command_that_explodes_class) do
         stub_class "CommandThatExplodes", Foobara::Command do
@@ -451,7 +450,7 @@ RSpec.describe Foobara::McpConnector do
 
       it "runs a stdio server and handles requests/responses" do
         Thread.new do
-          command_connector.run_stdio_server(io_in:, io_out:, io_err:)
+          command_connector.run_stdio_server(io_in:, io_out:)
         end
 
         initialize_request = JSON.generate(

@@ -9,6 +9,7 @@ module Foobara
       server_name: default_server_name,
       server_version: default_server_version,
       instructions: default_instructions,
+      default_serializers: Foobara::CommandConnectors::Serializers::AtomicSerializer,
       **,
       &
     )
@@ -16,7 +17,7 @@ module Foobara
       self.server_version = server_version
       self.instructions = instructions
 
-      super(*, capture_unknown_error:, **, &)
+      super(*, capture_unknown_error:, default_serializers:, **, &)
     end
 
     def default_server_name
