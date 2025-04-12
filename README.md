@@ -1,6 +1,6 @@
 # Foobara::McpConnector
 
-Exposes Foobara commands according to the Model Context Protocol specification
+Exposes Foobara commands according to the Model Context Protocol (MCP) specification
 
 ## Installation
 

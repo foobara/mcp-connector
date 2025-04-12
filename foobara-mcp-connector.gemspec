@@ -6,7 +6,8 @@ Gem::Specification.new do |spec|
   spec.authors = ["Miles Georgi"]
   spec.email = ["azimux@gmail.com"]
 
-  spec.summary = "No description. Add one."
+  spec.summary =
+    "Gives an easy way to expose your Foobara commands to tools like Claude Code via the Model Context Protocol (MCP)"
   spec.homepage = "https://github.com/foobara/mcp-connector"
   spec.license = "MPL-2.0"
   spec.required_ruby_version = Foobara::McpConnectorVersion::MINIMUM_RUBY_VERSION
