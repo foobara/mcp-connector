@@ -14,5 +14,5 @@
 /.env.*.local
 /.env.local
 
-/examples/local_data
+**/local_data/records.yml
 mcp-connector.log

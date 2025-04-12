@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+ENV["BUNDLE_GEMFILE"] ||= File.expand_path("#{__dir__}/Gemfile")
+require "bundler/setup"
+
+require "foobara/mcp_connector"
+require_relative "create_initial_capybaras"
+
+# For this example, let's intentionally break a Capybara's age by using a 2-digit age instead of
+# 4-digit and see if the agent can fix it.
+
+capybaras = FindAllCapybaras.run!
+
+barbara = capybaras.find { |c| c.name == "Barbara" }
+
+# We will simulate a year accidentally being entered with a 2-digit format where a 4-digit format was expected
+UpdateCapybara.run!(id: barbara.id, year_of_birth: 19)
+
+mcp_connector = Foobara::McpConnector.new
+
+mcp_connector.connect(FindAllCapybaras)
+mcp_connector.connect(UpdateCapybara)
+
+mcp_connector.run_stdio_server

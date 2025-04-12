@@ -17,6 +17,28 @@ class CreateCapybara < Foobara::Command
   end
 end
 
+class UpdateCapybara < Foobara::Command
+  inputs Capybara.attributes_for_update
+  result Capybara
+
+  def execute
+    load_capybara
+    update_capybara
+
+    capybara
+  end
+
+  attr_accessor :capybara
+
+  def load_capybara
+    self.capybara = Capybara.load(id)
+  end
+
+  def update_capybara
+    capybara.update(inputs)
+  end
+end
+
 class FindAllCapybaras < Foobara::Command
   result [Capybara]
 
