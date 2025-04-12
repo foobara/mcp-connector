@@ -16,3 +16,5 @@
 
 **/local_data/records.yml
 mcp-connector.log
+.mcp.json
+examples/.mcp.json

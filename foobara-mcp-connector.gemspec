@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
     "version.rb"
   ]
 
-  spec.add_dependency "foobara", "~> 0.0.97"
+  spec.add_dependency "foobara", "~> 0.0.101"
   spec.add_dependency "foobara-json-schema-generator", "~> 0.0.1"
 
   spec.require_paths = ["lib"]

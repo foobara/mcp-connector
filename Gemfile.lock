@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    foobara-mcp-connector (0.0.1)
-      foobara (~> 0.0.97)
+    foobara-mcp-connector (0.0.2)
+      foobara (~> 0.0.101)
       foobara-json-schema-generator (~> 0.0.1)
 
 GEM
