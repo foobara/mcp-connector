@@ -1,3 +1,7 @@
+## [0.0.3] - 2025-04-14
+
+- Grab version from gemspec instead of version.rb
+
 ## [0.0.2] - 2025-04-12
 
 - Add more examples

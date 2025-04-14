@@ -25,9 +25,7 @@ module Foobara
     end
 
     def default_server_version
-      require_relative "../version"
-
-      Foobara::McpConnectorVersion::VERSION
+      Gem.loaded_specs["foobara-mcp-connector"].version.to_s
     end
 
     def default_instructions

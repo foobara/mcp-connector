@@ -21,8 +21,7 @@ Gem::Specification.new do |spec|
     "src/**/*",
     "LICENSE*.txt",
     "README.md",
-    "CHANGELOG.md",
-    "version.rb"
+    "CHANGELOG.md"
   ]
 
   spec.add_dependency "foobara", "~> 0.0.101"
