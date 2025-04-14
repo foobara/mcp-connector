@@ -1,3 +1,7 @@
+## [0.0.4] - 2025-04-14
+
+- Do not log requests/responses/errors by default
+
 ## [0.0.3] - 2025-04-14
 
 - Grab version from gemspec instead of version.rb
