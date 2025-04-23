@@ -6,6 +6,8 @@ Exposes Foobara commands according to the Model Context Protocol (MCP) specifica
 * [Foobara::McpConnector](#foobaramcpconnector)
   * [Installation](#installation)
   * [Usage](#usage)
+    * [Code demo video!](#code-demo-video)
+    * [Code examples](#code-examples)
     * [Super basic example](#super-basic-example)
     * [An example with entities](#an-example-with-entities)
     * [A destructive example](#a-destructive-example)
@@ -20,6 +22,12 @@ Typical stuff: add `gem "foobara-mcp-connector` to your Gemfile or .gemspec file
 `gem install foobara-mcp-connector` if just playing with it directly in scripts.
 
 ## Usage
+
+### Code demo video!
+
+You can watch a code demo here: https://youtu.be/_w3ZHdiJEGU
+
+### Code examples
 
 You can find examples in `examples/`
 

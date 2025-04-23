@@ -22,10 +22,10 @@ GEM
     diff-lcs (1.6.1)
     docile (1.4.1)
     dotenv (3.1.8)
-    extract-repo (0.0.9)
-      foobara
-      foobara-sh-cli-connector
-    ffi (1.17.1-x86_64-linux-gnu)
+    extract-repo (0.0.10)
+      foobara (~> 0.0.102)
+      foobara-sh-cli-connector (~> 0.0.1)
+    ffi (1.17.2-x86_64-linux-gnu)
     foob (0.0.13)
       foobara (~> 0.0.99)
       foobara-command-generator (~> 0.0.1)
@@ -46,7 +46,7 @@ GEM
       foobara-type-generator (~> 0.0.1)
       foobara-typescript-react-command-form-generator (~> 0.0.1)
       foobara-typescript-remote-command-generator (~> 0.0.1)
-    foobara (0.0.102)
+    foobara (0.0.109)
       bigdecimal
       foobara-lru-cache (~> 0.0.2)
       foobara-util (~> 0.0.11)
@@ -62,7 +62,7 @@ GEM
       foobara-files-generator
     foobara-dotenv-loader (0.0.3)
       dotenv
-    foobara-empty-ruby-project-generator (0.0.15)
+    foobara-empty-ruby-project-generator (0.0.17)
       extract-repo (~> 0.0.1)
       foobara (~> 0.0.94)
       foobara-files-generator (~> 0.0.1)
@@ -77,12 +77,12 @@ GEM
       foobara
       foobara-files-generator
     foobara-lru-cache (0.0.2)
-    foobara-mcp-connector-generator (0.0.4)
+    foobara-mcp-connector-generator (0.0.6)
       foobara (~> 0.0.99)
     foobara-organization-generator (0.0.2)
       foobara
       foobara-files-generator
-    foobara-rack-connector-generator (0.0.9)
+    foobara-rack-connector-generator (0.0.11)
       foobara
       foobara-files-generator
     foobara-redis-crud-driver-generator (0.0.4)
@@ -108,9 +108,9 @@ GEM
     foobara-type-generator (0.0.4)
       foobara
       foobara-files-generator
-    foobara-typescript-react-command-form-generator (0.0.11)
+    foobara-typescript-react-command-form-generator (0.0.12)
       foobara-typescript-remote-command-generator (~> 0.0.1)
-    foobara-typescript-remote-command-generator (0.0.17)
+    foobara-typescript-remote-command-generator (0.0.18)
       foobara-files-generator (~> 0.0.1)
     foobara-util (0.0.11)
     formatador (1.1.0)
@@ -131,7 +131,7 @@ GEM
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
     hashdiff (1.1.2)
-    inheritable-thread-vars (0.0.1)
+    inheritable-thread-vars (0.0.2)
     io-console (0.8.0)
     irb (1.15.2)
       pp (>= 0.6.0)
@@ -197,7 +197,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.2)
-    rubocop (1.75.2)
+    rubocop (1.75.3)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -214,7 +214,7 @@ GEM
     rubocop-rake (0.7.1)
       lint_roller (~> 1.1)
       rubocop (>= 1.72.1)
-    rubocop-rspec (3.5.0)
+    rubocop-rspec (3.6.0)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     ruby-prof (1.7.1)
@@ -226,7 +226,7 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.13.1)
     simplecov_json_formatter (0.1.4)
-    stringio (3.1.6)
+    stringio (3.1.7)
     thor (1.3.2)
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
