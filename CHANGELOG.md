@@ -1,3 +1,7 @@
+## [0.0.5] - 2025-05-03
+
+- Handle changes to CommandConnector interface
+
 ## [0.0.4] - 2025-04-14
 
 - Do not log requests/responses/errors by default

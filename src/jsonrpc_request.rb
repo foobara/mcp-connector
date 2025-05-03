@@ -2,12 +2,29 @@ module Foobara
   class McpConnector < CommandConnector
     # Isolating jsonrpc specific logic to this abstract class
     class JsonrpcRequest < CommandConnector::Request
-      class InvalidJsonrpcVersionError < StandardError; end
-      class InvalidJsonrpcMethodError < StandardError; end
-      class InvalidJsonrpcParamsError < StandardError; end
-      class InvalidJsonrpcRequestStructureError < StandardError; end
-      class EmptyBatchError < StandardError; end
-      class InvalidJsonError < StandardError; end
+      class InvalidJsonrpcVersionError < Foobara::Error
+        context({})
+      end
+
+      class InvalidJsonrpcMethodError < Foobara::Error
+        context({})
+      end
+
+      class InvalidJsonrpcParamsError < Foobara::Error
+        context({})
+      end
+
+      class InvalidJsonrpcRequestStructureError < Foobara::Error
+        context({})
+      end
+
+      class EmptyBatchError < Foobara::Error
+        context({})
+      end
+
+      class InvalidJsonError < Foobara::Error
+        context({})
+      end
 
       # TODO: push response into base class?
       attr_accessor :raw_request_json, :parsed_request_body, :request_id, :batch, :is_batch_child
@@ -45,7 +62,9 @@ module Foobara
                                      begin
                                        JSON.parse(raw_request_json)
                                      rescue => e
-                                       self.error = InvalidJsonError.new("Could not parse request: #{e.message}")
+                                       self.error = InvalidJsonError.new(
+                                         message: "Could not parse request: #{e.message}"
+                                       )
                                        error.set_backtrace(caller)
                                        nil
                                      end
@@ -62,7 +81,9 @@ module Foobara
 
       def verify_jsonrpc_version
         if parsed_request_body["jsonrpc"] != "2.0"
-          self.error = InvalidJsonrpcVersionError.new("Unsupported jsonrpc version: #{parsed_request_body["jsonrpc"]}")
+          self.error = InvalidJsonrpcVersionError.new(
+            message: "Unsupported jsonrpc version: #{parsed_request_body["jsonrpc"]}"
+          )
           error.set_backtrace(caller)
         end
       end
@@ -93,7 +114,9 @@ module Foobara
 
       def validate_batch_not_empty
         if batch? && batch.empty?
-          self.error = EmptyBatchError.new("An empty array/batch is not allowed")
+          self.error = EmptyBatchError.new(
+            message: "An empty array/batch is not allowed"
+          )
           error.set_backtrace(caller)
         end
       end
@@ -101,7 +124,7 @@ module Foobara
       def validate_request_structure
         unless parsed_request_body.is_a?(::Hash)
           self.error = InvalidJsonrpcRequestStructureError.new(
-            "Invalid jsonrpc request structure. Expected a hash but got a #{parsed_request_body.class}"
+            message: "Invalid jsonrpc request structure. Expected a hash but got a #{parsed_request_body.class}"
           )
           error.set_backtrace(caller)
         end

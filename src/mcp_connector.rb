@@ -40,31 +40,39 @@ module Foobara
       StdioRunner.new(self).run(io_in: io_in, io_out: io_out, io_err: io_err)
     end
 
-    def request_to_command(request)
-      action = request.action
-
+    def request_to_command_class(request)
       return if request.error?
 
-      case action
-      when "initialize"
-        command_class = find_builtin_command_class("Initialize")
-      when "notifications/initialized", "notifications/cancelled", "notifications/progress",
-        "notifications/roots/list_changed"
-        command_class = find_builtin_command_class("Noop")
-      else
-        return super
-      end
+      builtin_command_class_name = case request.action
+                                   when "initialize"
+                                     "Initialize"
+                                   when "notifications/initialized", "notifications/cancelled",
+                                        "notifications/progress", "notifications/roots/list_changed"
+                                     "Noop"
+                                   else
+                                     return super
+                                   end
+
+      command_class = find_builtin_command_class(builtin_command_class_name)
 
       full_command_name = command_class.full_command_name
-      inputs = (request.params || {}).merge(request:)
 
-      transformed_command_class = transformed_command_from_name(full_command_name) ||
-                                  transform_command_class(command_class)
-
-      transformed_command_class.new(inputs)
+      transformed_command_from_name(full_command_name) || transform_command_class(command_class)
     rescue CommandConnector::NoCommandFoundError => e
       request.error = e
       nil
+    end
+
+    def request_to_command_inputs(request)
+      return if request.error?
+
+      case request.action
+      when "initialize", "notifications/initialized", "notifications/cancelled", "notifications/progress",
+        "notifications/roots/list_changed"
+        (request.params || {}).merge(request:)
+      else
+        super
+      end
     end
 
     # TODO: figure out how to support multiple sessions
