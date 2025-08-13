@@ -24,8 +24,8 @@ Gem::Specification.new do |spec|
     "CHANGELOG.md"
   ]
 
-  spec.add_dependency "foobara", "~> 0.0.101"
-  spec.add_dependency "foobara-json-schema-generator", "~> 0.0.1"
+  spec.add_dependency "foobara", "< 2.0.0"
+  spec.add_dependency "foobara-json-schema-generator", "< 2.0.0"
 
   spec.require_paths = ["lib"]
   spec.metadata["rubygems_mfa_required"] = "true"

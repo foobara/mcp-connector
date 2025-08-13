@@ -3,9 +3,9 @@ require_relative "../request"
 module Foobara
   class McpConnector < CommandConnector
     module Commands
-      SUPPORTED_VERSIONS = %w[
-        2024-11-05
-        2025-03-26
+      SUPPORTED_VERSIONS = [
+        "2024-11-05",
+        "2025-03-26"
       ].freeze
 
       class Initialize < Command

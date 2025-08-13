@@ -8,13 +8,13 @@ gemspec
 # gem "foobara", path: "../foobara"
 # gem "foobara-json-schema-generator", path: "../json-schema-generator"
 
-gem "foobara-dotenv-loader", "~> 0.0.1"
+gem "foobara-dotenv-loader", "< 2.0.0"
 
 gem "rake"
 
 group :development do
-  gem "foob", "~> 0.0.1"
-  gem "foobara-rubocop-rules", "~> 0.0.1"
+  gem "foob", "< 2.0.0"
+  gem "foobara-rubocop-rules", ">= 1.0.0"
   gem "guard-rspec"
   gem "rubocop-rake"
   gem "rubocop-rspec"
@@ -29,7 +29,7 @@ group :development, :test do
 end
 
 group :test do
-  gem "foobara-spec-helpers", "~> 0.0.1"
+  gem "foobara-spec-helpers", "< 2.0.0"
   gem "rspec"
   gem "rspec-its"
   gem "ruby-prof"

@@ -1,12 +1,14 @@
 source "https://rubygems.org"
 
 # Why aren't we able to update gems anymore??
-gem "foobara", "~> 0.0.98" # , path: "../../foobara"
+gem "foobara", "< 2.0.0" # , path: "../../foobara"
 
-gem "foobara-local-files-crud-driver", "~> 0.0.1" # , path: "../../local-files-crud-driver"
+gem "foobara-local-files-crud-driver", "< 2.0.0" # , path: "../../local-files-crud-driver"
 gem "foobara-mcp-connector", path: ".."
 
-gem "foobara-rubocop-rules", "~> 0.0.1"
+gem "foobara-rubocop-rules", ">= 1.0.0"
+gem "rubocop-rake"
+
 gem "pry"
 gem "pry-byebug"
 # TODO: Just adding this to suppress warnings seemingly coming from pry-byebug. Can probably remove this once

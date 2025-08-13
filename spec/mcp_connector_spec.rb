@@ -65,7 +65,7 @@ RSpec.describe Foobara::McpConnector do
 
         def execute
           self.class.called_with << inputs
-          base**exponent
+          base ** exponent
         end
       end
     end
@@ -93,7 +93,7 @@ RSpec.describe Foobara::McpConnector do
       let(:protocol_version) { "2025-03-26" }
 
       it "results in the expected and sets a session" do
-        expect(response_body.keys).to match_array(%w[id jsonrpc result])
+        expect(response_body.keys).to contain_exactly("id", "jsonrpc", "result")
         expect(response_body["id"]).to eq(request_id)
         expect(response_body["jsonrpc"]).to eq("2.0")
 
@@ -125,7 +125,7 @@ RSpec.describe Foobara::McpConnector do
       let(:params) { nil }
 
       it "gives an array of tools" do
-        expect(response_body.keys).to match_array(%w[id jsonrpc result])
+        expect(response_body.keys).to contain_exactly("id", "jsonrpc", "result")
         expect(response_body["id"]).to eq(request_id)
         expect(response_body["jsonrpc"]).to eq("2.0")
 
@@ -141,7 +141,7 @@ RSpec.describe Foobara::McpConnector do
                   "base" => { "type" => "number" },
                   "exponent" => { "type" => "number" }
                 },
-                "required" => %w[base exponent]
+                "required" => ["base", "exponent"]
               }
             }
           ]
@@ -169,11 +169,11 @@ RSpec.describe Foobara::McpConnector do
       let(:request_json) { "100" }
 
       it "is an error" do
-        expect(response_body.keys).to match_array(%w[jsonrpc error id])
+        expect(response_body.keys).to contain_exactly("jsonrpc", "error", "id")
         expect(response_body["jsonrpc"]).to eq("2.0")
         expect(response_body["id"]).to be_nil
 
-        expect(response_body["error"].keys).to match_array(%w[code message])
+        expect(response_body["error"].keys).to contain_exactly("code", "message")
         expect(response_body["error"]["code"]).to eq(-32_600)
       end
     end
@@ -182,11 +182,11 @@ RSpec.describe Foobara::McpConnector do
       let(:arguments) { 100 }
 
       it "is an error" do
-        expect(response_body.keys).to match_array(%w[jsonrpc error id])
+        expect(response_body.keys).to contain_exactly("jsonrpc", "error", "id")
         expect(response_body["jsonrpc"]).to eq("2.0")
         expect(response_body["id"]).to eq(request_id)
 
-        expect(response_body["error"].keys).to match_array(%w[code message])
+        expect(response_body["error"].keys).to contain_exactly("code", "message")
         expect(response_body["error"]["code"]).to eq(-32_600)
       end
     end
@@ -207,10 +207,10 @@ RSpec.describe Foobara::McpConnector do
       let(:params) { nil }
 
       it "is an error" do
-        expect(response_body.keys).to match_array(%w[jsonrpc error id])
+        expect(response_body.keys).to contain_exactly("jsonrpc", "error", "id")
         expect(response_body["id"]).to eq(request_id)
 
-        expect(response_body["error"].keys).to match_array(%w[code message])
+        expect(response_body["error"].keys).to contain_exactly("code", "message")
         expect(response_body["error"]["code"]).to eq(-32_600)
       end
     end
@@ -272,11 +272,11 @@ RSpec.describe Foobara::McpConnector do
         let(:mcp_inputs) { [] }
 
         it "is an error" do
-          expect(response_body.keys).to match_array(%w[jsonrpc error id])
+          expect(response_body.keys).to contain_exactly("jsonrpc", "error", "id")
           expect(response_body["jsonrpc"]).to eq("2.0")
           expect(response_body["id"]).to be_nil
 
-          expect(response_body["error"].keys).to match_array(%w[code message])
+          expect(response_body["error"].keys).to contain_exactly("code", "message")
           expect(response_body["error"]["code"]).to eq(-32_600)
         end
       end
@@ -301,13 +301,13 @@ RSpec.describe Foobara::McpConnector do
       let(:request_json) { "{ asdfasdfasdf" }
 
       it "gives an error" do
-        expect(response_body.keys).to match_array(%w[jsonrpc error id])
+        expect(response_body.keys).to contain_exactly("jsonrpc", "error", "id")
         expect(response_body["jsonrpc"]).to eq("2.0")
         expect(response_body["id"]).to be_nil
 
         error = response_body["error"]
 
-        expect(error.keys).to match_array(%w[code message])
+        expect(error.keys).to contain_exactly("code", "message")
 
         expect(error["code"]).to eq(-32_700)
         expect(error["message"]).to match(/Could not parse request: /)
@@ -320,13 +320,13 @@ RSpec.describe Foobara::McpConnector do
       end
 
       it "gives an error" do
-        expect(response_body.keys).to match_array(%w[jsonrpc error id])
+        expect(response_body.keys).to contain_exactly("jsonrpc", "error", "id")
         expect(response_body["jsonrpc"]).to eq("2.0")
         expect(response_body["id"]).to be(100)
 
         error = response_body["error"]
 
-        expect(error.keys).to match_array(%w[code message data])
+        expect(error.keys).to contain_exactly("code", "message", "data")
 
         expect(error["code"]).to eq(-32_602)
         expect(error["message"]).to be_a(String)
@@ -337,13 +337,13 @@ RSpec.describe Foobara::McpConnector do
         let(:inputs) { [1, 2, 3] }
 
         it "gives an error" do
-          expect(response_body.keys).to match_array(%w[jsonrpc error id])
+          expect(response_body.keys).to contain_exactly("jsonrpc", "error", "id")
           expect(response_body["jsonrpc"]).to eq("2.0")
           expect(response_body["id"]).to be(100)
 
           error = response_body["error"]
 
-          expect(error.keys).to match_array(%w[code message])
+          expect(error.keys).to contain_exactly("code", "message")
 
           expect(error["code"]).to eq(-32_602)
           expect(error["message"]).to be_a(String)
@@ -355,13 +355,13 @@ RSpec.describe Foobara::McpConnector do
       let(:tool_name) { "BadCommandName" }
 
       it "gives an error" do
-        expect(response_body.keys).to match_array(%w[jsonrpc error id])
+        expect(response_body.keys).to contain_exactly("jsonrpc", "error", "id")
         expect(response_body["jsonrpc"]).to eq("2.0")
         expect(response_body["id"]).to be(100)
 
         error = response_body["error"]
 
-        expect(error.keys).to match_array(%w[code message])
+        expect(error.keys).to contain_exactly("code", "message")
         expect(error["code"]).to eq(-32_601)
         expect(error["message"]).to be_a(String)
       end
@@ -386,13 +386,13 @@ RSpec.describe Foobara::McpConnector do
       end
 
       it "gives an error" do
-        expect(response_body.keys).to match_array(%w[jsonrpc error id])
+        expect(response_body.keys).to contain_exactly("jsonrpc", "error", "id")
         expect(response_body["jsonrpc"]).to eq("2.0")
         expect(response_body["id"]).to be(100)
 
         error = response_body["error"]
 
-        expect(error.keys).to match_array(%w[code message])
+        expect(error.keys).to contain_exactly("code", "message")
         expect(error["code"]).to eq(-32_603)
         expect(error["message"]).to be_a(String)
       end
@@ -410,13 +410,13 @@ RSpec.describe Foobara::McpConnector do
           end
 
           it "does not raise" do
-            expect(response_body.keys).to match_array(%w[jsonrpc error id])
+            expect(response_body.keys).to contain_exactly("jsonrpc", "error", "id")
             expect(response_body["jsonrpc"]).to eq("2.0")
             expect(response_body["id"]).to be(100)
 
             error = response_body["error"]
 
-            expect(error.keys).to match_array(%w[code message data])
+            expect(error.keys).to contain_exactly("code", "message", "data")
             expect(error["data"]).to be_a(Hash)
             expect(error["code"]).to eq(-32_603)
             expect(error["message"]).to be_a(String)
@@ -468,8 +468,9 @@ RSpec.describe Foobara::McpConnector do
 
         response = JSON.parse(io_out_reader.readline)
 
-        expect(response.keys).to match_array(%w[id result jsonrpc])
-        expect(response["result"].keys).to match_array(%w[capabilities instructions protocolVersion serverInfo])
+        expect(response.keys).to contain_exactly("id", "result", "jsonrpc")
+        expect(response["result"].keys).to contain_exactly("capabilities", "instructions", "protocolVersion",
+                                                           "serverInfo")
 
         expect(response["id"]).to eq(1)
         expect(response["result"]["capabilities"]).to eq("tools" => { "listChanged" => false })
@@ -482,8 +483,8 @@ RSpec.describe Foobara::McpConnector do
 
         response = JSON.parse(io_out_reader.readline)
 
-        expect(response.keys).to match_array(%w[id result jsonrpc])
-        expect(response["result"].keys).to match_array(%w[tools])
+        expect(response.keys).to contain_exactly("id", "result", "jsonrpc")
+        expect(response["result"].keys).to contain_exactly("tools")
 
         expect(response["id"]).to eq(2)
         expect(response["result"]["tools"]).to contain_exactly(
@@ -494,7 +495,7 @@ RSpec.describe Foobara::McpConnector do
                 "base" => { "type" => "number" },
                 "exponent" => { "type" => "number" }
               },
-              "required" => %w[base exponent],
+              "required" => ["base", "exponent"],
               "type" => "object"
             },
             "name" => "SomeOrg::SomeDomain::ComputeExponent"
@@ -518,7 +519,7 @@ RSpec.describe Foobara::McpConnector do
 
         response = JSON.parse(io_out_reader.readline)
 
-        expect(response.keys).to match_array(%w[id result jsonrpc])
+        expect(response.keys).to contain_exactly("id", "result", "jsonrpc")
         expect(response["result"]["content"][0]["text"]).to eq("8")
         expect(response["id"]).to eq(3)
 
@@ -557,21 +558,21 @@ RSpec.describe Foobara::McpConnector do
         expect(response).to be_an(Array)
         expect(response.size).to eq(4)
 
-        expect(response[0].keys).to match_array(%w[id result jsonrpc])
+        expect(response[0].keys).to contain_exactly("id", "result", "jsonrpc")
         expect(response[0]["result"]["content"][0]["text"]).to eq("4")
         expect(response[0]["id"]).to eq(3)
 
-        expect(response[1].keys).to match_array(%w[id error jsonrpc])
+        expect(response[1].keys).to contain_exactly("id", "error", "jsonrpc")
         expect(response[1]["id"]).to eq(4)
-        expect(response[1]["error"].keys).to match_array(%w[code data message])
+        expect(response[1]["error"].keys).to contain_exactly("code", "data", "message")
         expect(response[1]["error"]["code"]).to eq(-32_602)
 
-        expect(response[2].keys).to match_array(%w[id error jsonrpc])
+        expect(response[2].keys).to contain_exactly("id", "error", "jsonrpc")
         expect(response[2]["id"]).to be_nil
-        expect(response[2]["error"].keys).to match_array(%w[code message])
+        expect(response[2]["error"].keys).to contain_exactly("code", "message")
         expect(response[2]["error"]["code"]).to eq(-32_600)
 
-        expect(response[3].keys).to match_array(%w[id result jsonrpc])
+        expect(response[3].keys).to contain_exactly("id", "result", "jsonrpc")
         expect(response[3]["result"]["content"][0]["text"]).to eq("32")
         expect(response[3]["id"]).to eq(5)
 
@@ -588,9 +589,9 @@ RSpec.describe Foobara::McpConnector do
 
         response = JSON.parse(io_out_reader.readline)
 
-        expect(response.keys).to match_array(%w[id error jsonrpc])
+        expect(response.keys).to contain_exactly("id", "error", "jsonrpc")
         expect(response["id"]).to eq(6)
-        expect(response["error"].keys).to match_array(%w[code message])
+        expect(response["error"].keys).to contain_exactly("code", "message")
         expect(response["error"]["code"]).to eq(-32_600)
 
         # test bad json
@@ -598,9 +599,9 @@ RSpec.describe Foobara::McpConnector do
 
         response = JSON.parse(io_out_reader.readline)
 
-        expect(response.keys).to match_array(%w[id error jsonrpc])
+        expect(response.keys).to contain_exactly("id", "error", "jsonrpc")
         expect(response["id"]).to be_nil
-        expect(response["error"].keys).to match_array(%w[code message])
+        expect(response["error"].keys).to contain_exactly("code", "message")
         expect(response["error"]["code"]).to eq(-32_700)
 
         # test with a bad command name
@@ -613,9 +614,9 @@ RSpec.describe Foobara::McpConnector do
 
         response = JSON.parse(io_out_reader.readline)
 
-        expect(response.keys).to match_array(%w[id error jsonrpc])
+        expect(response.keys).to contain_exactly("id", "error", "jsonrpc")
         expect(response["id"]).to eq(7)
-        expect(response["error"].keys).to match_array(%w[code message])
+        expect(response["error"].keys).to contain_exactly("code", "message")
         expect(response["error"]["code"]).to eq(-32_601)
 
         # with command that explodes
@@ -627,9 +628,9 @@ RSpec.describe Foobara::McpConnector do
 
         response = JSON.parse(io_out_reader.readline)
 
-        expect(response.keys).to match_array(%w[id error jsonrpc])
+        expect(response.keys).to contain_exactly("id", "error", "jsonrpc")
         expect(response["id"]).to eq(8)
-        expect(response["error"].keys).to match_array(%w[code message])
+        expect(response["error"].keys).to contain_exactly("code", "message")
         expect(response["error"]["code"]).to eq(-32_603)
         expect(response["error"]["message"]).to eq("kaboom!!")
 
