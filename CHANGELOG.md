@@ -1,3 +1,7 @@
+## [1.0.0] - 2025-08-13
+
+- Bump deps and version to unblock other upgrades
+
 ## [0.0.5] - 2025-05-03
 
 - Handle changes to CommandConnector interface
