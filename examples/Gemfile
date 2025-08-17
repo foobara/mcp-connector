@@ -1,9 +1,10 @@
 source "https://rubygems.org"
 
 # Why aren't we able to update gems anymore??
-gem "foobara", "< 2.0.0" # , path: "../../foobara"
+gem "foobara", ">= 0.1.0", "< 2.0.0", path: "../../foobara"
+gem "foobara-json-schema-generator", path: "../../json-schema-generator"
 
-gem "foobara-local-files-crud-driver", "< 2.0.0" # , path: "../../local-files-crud-driver"
+gem "foobara-local-files-crud-driver", "< 2.0.0", path: "../../local-files-crud-driver"
 gem "foobara-mcp-connector", path: ".."
 
 gem "foobara-rubocop-rules", ">= 1.0.0"
