@@ -14,7 +14,7 @@
 /.env.*.local
 /.env.local
 
-**/local_data/records.yml
+**/local_data/*.yml
 mcp-connector.log
 .mcp.json
 examples/.mcp.json

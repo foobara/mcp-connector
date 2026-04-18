@@ -10,3 +10,6 @@ Naming/FileName:
   inherit_mode:
     merge:
       - Exclude
+
+Style/OneClassPerFile:
+  Enabled: false

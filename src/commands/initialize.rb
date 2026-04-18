@@ -13,12 +13,13 @@ module Foobara
           request Request, :required
           # TODO: Implement some kind of camelize serializer/result transformer/response mutator
           protocolVersion :string, :required
-          # TODO: support :attributes without extending it which should work but I think doesn't
-          # so using :duck for now
-          capabilities :duck, :required
-          clientInfo :required do
+          capabilities :attributes, :required
+          clientInfo :required, :ignore_unexpected_attributes do
             name :string, :required
             version :string, :required
+            title :string
+            description :string
+            websiteUrl :string
           end
         end
 

@@ -1,3 +1,7 @@
+## [1.0.1] - 2026-04-17
+
+- Handle new clientInfo fields
+
 ## [1.0.0] - 2025-08-13
 
 - Bump deps and version to unblock other upgrades

@@ -13,8 +13,7 @@ module Foobara
           tools :array do
             name :string, :required
             description :string, :allow_nil
-            # TODO: make sure attributes can be used as a type without extension
-            inputSchema :duck, :required
+            inputSchema :attributes, :required
             # TODO: implement annotations!!
           end
         end
