@@ -16,12 +16,12 @@ module Foobara
             io_out.flush
           end
         rescue => e
-          # :nocov:
+          # simplecov:disable
           self.last_unexpected_error = e
           io_err.puts e.message
           io_err.puts e.backtrace
           io_err.flush
-          # :nocov:
+          # simplecov:enable
         end
       end
     end

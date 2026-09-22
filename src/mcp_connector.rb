@@ -190,17 +190,17 @@ module Foobara
                           case error
                           when Foobara::Entity::NotFoundError
                             # TODO: we should not be coupled to Entities here...
-                            # :nocov:
+                            # simplecov:disable
                             404
-                            # :nocov:
+                            # simplecov:enable
                           when CommandConnector::UnauthenticatedError
-                            # :nocov:
+                            # simplecov:disable
                             401
-                            # :nocov:
+                            # simplecov:enable
                           when CommandConnector::NotAllowedError
-                            # :nocov:
+                            # simplecov:disable
                             403
-                            # :nocov:
+                            # simplecov:enable
                           when CommandConnector::UnknownError
                             -32_603
                           when Foobara::DataError

@@ -310,7 +310,7 @@ RSpec.describe Foobara::McpConnector do
         expect(error.keys).to contain_exactly("code", "message")
 
         expect(error["code"]).to eq(-32_700)
-        expect(error["message"]).to match(/Could not parse request: /)
+        expect(error["message"]).to include('Could not parse request: ')
       end
     end
 
