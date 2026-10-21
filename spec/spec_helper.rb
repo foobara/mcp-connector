@@ -23,3 +23,5 @@ Dir["#{__dir__}/support/**/*.rb"].each { |f| require f }
 
 require "foobara/spec_helpers/all"
 require_relative "../boot/finish"
+
+Foobara.start!

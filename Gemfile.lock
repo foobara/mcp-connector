@@ -48,7 +48,7 @@ GEM
       foobara-typescript-react-command-form-generator (< 2.0.0)
       foobara-typescript-remote-command-generator (< 2.0.0)
       foobify-rails-app (< 2.0.0)
-    foobara (0.6.3)
+    foobara (0.7.5)
       bigdecimal
       foobara-lru-cache (< 2.0.0)
       foobara-util (< 2.0.0)
@@ -64,14 +64,14 @@ GEM
       foobara-files-generator
     foobara-dotenv-loader (0.0.3)
       dotenv
-    foobara-empty-ruby-project-generator (1.0.5)
+    foobara-empty-ruby-project-generator (1.1.0)
       extract-repo (< 2.0.0)
-      foobara (>= 0.1.1, < 2.0.0)
-      foobara-files-generator (< 2.0.0)
+      foobara (>= 0.7.3, < 2.0.0)
+      foobara-files-generator (>= 0.2.4, < 2.0.0)
     foobara-empty-typescript-react-project-generator (0.3.0)
       foobara (>= 0.1.1, < 2.0.0)
       foobara-files-generator (< 2.0.0)
-    foobara-files-generator (0.1.5)
+    foobara-files-generator (0.2.5)
       foobara (>= 0.1.1, < 2.0.0)
     foobara-json-schema-generator (1.1.1)
       foobara (>= 0.1.1, < 2.0.0)
@@ -105,7 +105,7 @@ GEM
     foobara-sh-cli-connector (1.1.4)
       foobara (>= 0.1.1, < 2.0.0)
       foobara-files-generator (< 2.0.0)
-    foobara-sh-cli-connector-generator (0.1.0)
+    foobara-sh-cli-connector-generator (0.2.0)
       foobara (>= 0.1.1)
       foobara-files-generator (< 2.0.0)
     foobara-spec-helpers (0.1.1)
@@ -119,7 +119,7 @@ GEM
     foobara-typescript-remote-command-generator (1.5.1)
       foobara (>= 0.1.16, < 2.0.0)
       foobara-files-generator (< 2.0.0)
-    foobara-util (1.0.8)
+    foobara-util (1.1.1)
     foobify-rails-app (0.0.13)
       foobara (>= 0.3.0, < 2.0.0)
       foobara-files-generator (< 2.0.0)
@@ -149,10 +149,10 @@ GEM
       prism (>= 1.3.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
-    json (3.0.2)
+    json (3.1.0)
     language_server-protocol (3.17.0.6)
     lint_roller (1.1.0)
-    listen (3.10.0)
+    listen (3.10.1)
       logger
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -164,15 +164,15 @@ GEM
       nenv (~> 0.1)
       shellany (~> 0.0)
     ostruct (0.6.3)
-    parallel (2.2.0)
+    parallel (2.3.0)
     parser (3.3.12.0)
       ast (~> 2.4.1)
       racc
     pp (0.6.4)
       prettyprint
-    prettyprint (0.2.0)
+    prettyprint (0.2.1)
     prism (1.9.0)
-    pry (0.16.0)
+    pry (0.16.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
       reline (>= 0.6.0)
@@ -190,12 +190,12 @@ GEM
       logger
       prism (>= 1.6.0)
       tsort
-    rdoc (8.0.0)
+    rdoc (8.1.0)
       erb
       prism (>= 1.6.0)
       rbs (>= 4.0.0)
       tsort
-    regexp_parser (2.12.0)
+    regexp_parser (2.13.1)
     reline (0.7.0)
       io-console (~> 0.5)
     rexml (3.4.4)
@@ -215,14 +215,14 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.7)
-    rubocop (1.91.0)
+    rubocop (1.92.0)
       json (>= 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
       parallel (>= 1.10)
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
-      regexp_parser (>= 2.9.3, < 3.0)
+      regexp_parser (>= 2.11.3, < 3.0)
       rubocop-ast (>= 1.49.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
@@ -241,14 +241,14 @@ GEM
       ostruct
     ruby-progressbar (1.13.0)
     shellany (0.0.1)
-    simplecov (1.3.0)
+    simplecov (1.3.2)
     thor (1.5.0)
     tsort (0.2.0)
     unicode-display_width (3.3.0)
       unicode-emoji (~> 4.3)
     unicode-emoji (4.3.0)
     vcr (6.4.0)
-    webmock (3.26.4)
+    webmock (3.34.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -278,7 +278,7 @@ DEPENDENCIES
   webmock
 
 RUBY VERSION
-   ruby 3.4.2p28
+  ruby 3.4.2p28
 
 BUNDLED WITH
-   2.6.6
+  4.0.21
